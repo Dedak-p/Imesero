@@ -1,0 +1,12 @@
+# Ignorar dependencias del backend
+/backend/vendor
+/backend/storage/*.key
+/backend/.env
+
+# Ignorar dependencias del frontend
+/frontend/node_modules
+
+# Archivos del sistema
+.DS_Store
+.env
+.idea
