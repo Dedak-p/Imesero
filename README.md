@@ -21,11 +21,13 @@
   └── README.md  
 
 ## Entorno de desarrollo
+### Configuracion del entorno
+Servidor Ubuntu 24.04 LTS con Docker i Docker compose
+### Requisitos del entorno de desarrollo
 
 > [!IMPORTANT]
-> ### Requisitos del entorno de desarrollo
 > - Servidor Linux 24.04 LTS [Enlace de descarga](https://ubuntu.com/download/server/thank-you?version=24.04.2&architecture=amd64&lts=true).
-> - (Recomendado) Tener instalado open_ssh. Se puede instalar durante la istalacion del servidor local.
+> - (Recomendado) Tener instalado en el servidor openSSH. Se puede instalar durante la istalacion del servidor local.
 > - Instalar Docker y Docker-Compose [Documentacion](https://docs.docker.com/engine/install/ubuntu/).  
 >   <details>
 >   <summary>Guia de instalación</summary>
@@ -46,6 +48,58 @@
 >   sudo apt update
 >   sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 >   ```
+>   #### (Opcional) Añadir el usuario al grupo Docker para no tener que hacer `sudo` en cada comando `docker`
+>   ```
+>   sudo usermod -aG docker $USER
+>   newgrp docker
+>   ```
 >   </details>
 >
 > - Instalar Composer **Importante para el BackEnd**
+>   <details>
+>   <summary>Guia de instalación</summary>
+>
+>   #### Instalacion de PHP i sus dependencias
+>   ```
+>   sudo apt update
+>   sudo apt install -y php-cli php-mbstring php-xml php-curl php-zip unzip
+>   php -v
+>   ```
+>   #### Instalacion de Composer
+>   ```
+>   curl -sS https://getcomposer.org/installer -o composer-setup.php
+>   sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+>   composer --version
+>   ```
+>   </details>
+>
+> - Instalar Node.js y Yarn **Importante para el FrontEnd**
+>   <details>
+>   <summary>Guia de instalación</summary>
+>
+>   #### Instalacion de Node.js
+>   ```
+>   # Instalar NVM (Node Version Manager)
+>   curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+>
+>   # Cargar NVM en la sesión actual
+>   source ~/.bashrc  # o ~/.zshrc si usas Zsh
+>
+>   # Instalar la versión recomendada de Node.js
+>   nvm install --lts
+>   nvm use --lts
+>
+>   # Verificar instalación
+>   node -v
+>   ```
+>
+>   #### Instalacion de Yarn
+>   ```
+>   # Instalar Yarn globalmente con Corepack
+>   corepack enable
+>   npm install -g yarn
+>
+>   # Verificar instalación
+>   yarn -v
+>   ```
+>   </details>
