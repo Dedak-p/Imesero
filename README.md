@@ -22,10 +22,21 @@
 
 ## Entorno de desarrollo
 ### Configuracion del entorno
-Servidor Ubuntu 24.04 LTS con Docker i Docker compose
+Servidor Ubuntu 24.04 LTS con Docker, Docker compose, Composer y Yarn.  
 ### Requisitos del entorno de desarrollo
+Según ChatGPT los requisitos del servidor son:
+- Minimos
+  -  vCPUs:	2 vCPUs
+  -  RAM:	4 GB
+  -  Disco:	30 GB
+- Recomendados:
+  -  vCPUs:	4 vCPUs o más
+  -  RAM:	8-12 GB
+  -  Disco:	50 GB o más
+ 
+- Red: Adaptador puente
 
-> [!IMPORTANT]
+> [!TIP]
 > - Servidor Linux 24.04 LTS [Enlace de descarga](https://ubuntu.com/download/server/thank-you?version=24.04.2&architecture=amd64&lts=true).
 > - (Recomendado) Tener instalado en el servidor openSSH. Se puede instalar durante la istalacion del servidor local.
 > - Instalar Docker y Docker-Compose [Documentacion](https://docs.docker.com/engine/install/ubuntu/).  
@@ -103,3 +114,44 @@ Servidor Ubuntu 24.04 LTS con Docker i Docker compose
 >   yarn -v
 >   ```
 >   </details>
+
+## Iniciar el proyecto:
+> [!IMPORTANT]
+> Hay archivos que no se copian en el repositorio debido a que son archivos importantes y por buenas practicas se añaden en el .gitignore .  Muchoas de los git ignore son automaticos al desplegar yarn y laravel
+### Frontend
+Accede a la carpeta forntend y intala las dependencias con yarn:
+```
+cd frontend/
+yarn install
+```
+### Backend
+Duplica el archivo .env.example con el nombre de .env y despues descomenta la configuracion de la base de datos dentro del archivo .env:
+```
+cp backend/.env.example backend/.env
+nano backend/.env
+```
+.env descomentado :
+```
+...
+
+DB_CONNECTION=pgsql
+DB_HOST=db
+DB_PORT=5432
+DB_DATABASE=imesero
+DB_USERNAME=imesero_user
+DB_PASSWORD=imeseropass
+
+...
+```
+Accede a la carpeta forntend y intala las dependencias con yarn:
+```
+cd backend/
+php artisan key:generate
+```
+
+## A TENER EN CUENTA!
+
+> [!WARNING]
+> Lo que hay hecho es simplemente la creacion de una tabla productos a partir de comandos de laravel con las funciones mas basicas CRUD y este controlador lo sirvo a traves del archivo api.php de la carpeta routes.  
+> En React dentro del archivo App.js hay una funcion que llama a esta api a partir de la IP del servidor **Esto se tienen que cambiar en cada instalacion a no ser que encontremos una solucion practica**.
+> Es decir ahora sale una llamada a 192.1.168.82:8000 cambialo a la ip de tu servidor.
