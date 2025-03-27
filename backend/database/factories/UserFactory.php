@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+//Las Factories en laravel son clases que permiten generar datos falsos para pruebas o bases de datos en desarrollo 
+
+//Utilización de clases 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,7 +20,7 @@ class UserFactory extends Factory
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Define los datos falsos , fake es una instancia de faker , utilizada para generar datos falsos
      *
      * @return array<string, mixed>
      */
@@ -33,7 +36,8 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Mètode que hace que el email no este verificado , permite crear usuarios sin verificar el email , se usa cuando queremos simular usuarios nuevos que aun no
+     * no han confirmado su correo
      */
     public function unverified(): static
     {
