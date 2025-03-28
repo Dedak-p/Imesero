@@ -1,16 +1,16 @@
 import React from 'react';
 import Header from "../components/Header";
 import Item from '../components/Item';
+import SeccionTitulo from '../components/SeccionTitulo';
 
 const MenuPage = () => {
 
   return (
     <>
-      <Header />     
+      <Header />
 
       <div className='p-4 mt-25  flex flex-col items-center'>
-        <h2 className="mt-3" style={{ borderBottom: "2px solid #000", width: "95%" }}>Recomendación de la casa</h2>
-
+        <SeccionTitulo titulo="Recomendación de la casa" />
         <Item />
         <h2 style={{ borderBottom: "2px solid #000", width: "95%" }}>Especiales</h2>
         <Item />

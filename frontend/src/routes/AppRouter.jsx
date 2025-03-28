@@ -1,24 +1,21 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import Menu from "../pages/Menu";
-import Item from "../pages/Item";
-import Carrito from "../pages/Carrito";
-import Seguimiento from "../pages/Seguimiento";
-import AboutPage from "../pages/AboutPage";
+import EntradaQRPage from "../pages/EntradaQR";
+import MenuPage from "../pages/Menu";
+import ItemSelectedPage from "../pages/ItemSelected";
+import CarritoPage from "../pages/Carrito";
+import SeguimientoPage from "../pages/Seguimiento";
 import NotFoundPage from "../pages/NotFoundPage";
-import Navbar from "../components/Navbar";
 
 
 const AppRouter = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/menu" element={<Menu />} />
-                <Route path="/item" element={<Item />} />
-                <Route path="/carrito" element={<Carrito />} />
-                <Route path="/seguimiento" element={<Seguimiento />} />
-                <Route path="/about" element={<AboutPage />} />
+                <Route path="/" element={<EntradaQRPage />} />
+                <Route path="/menu" element={<MenuPage />} />
+                <Route path="/item" element={<ItemSelectedPage />} />
+                <Route path="/carrito" element={<CarritoPage />} />
+                <Route path="/seguimiento" element={<SeguimientoPage />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </BrowserRouter>
