@@ -1,6 +1,6 @@
 import Header from "../components/Header";
 
-const HomePage = () => {
+const SeguimientoPage = () => {
 
     return (
         <>
@@ -10,4 +10,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default SeguimientoPage;
