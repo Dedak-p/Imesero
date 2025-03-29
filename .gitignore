@@ -10,3 +10,6 @@
 .DS_Store
 .env
 .idea
+Dockerfile.backend
+Dockerfile.frontend
+docker-compose.yml
