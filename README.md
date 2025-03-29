@@ -24,7 +24,6 @@
 ### Configuracion del entorno
 Servidor Ubuntu 24.04 LTS con Docker, Docker compose, Composer y Yarn.  
 ### Requisitos del entorno de desarrollo
-Según ChatGPT los requisitos del servidor son:
 - Minimos
   -  vCPUs:	2 vCPUs
   -  RAM:	4 GB
