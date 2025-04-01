@@ -3,13 +3,20 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController; //Se importa ProductController 
+use App\Http\Controllers\ProductoController; 
 
 
 //Laravel crea automáticamente las rutas RESTful necesarias para las operaciones
 // CRUD asociadas con el recurso products.Estas rutas se generan sin que tengas que escribirlas manualmente
 //Laravel asignara estas rutas al ProductController que mencionaste
-Route::apiResource('products', ProductController::class);
+//Route::apiResource('products', ProductController::class);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::get('/', function (Request $request) {
+    return 'Bienvenido a la API de iMesero';
+});
+
+Route::apiResource('productos', ProductoController::class);
