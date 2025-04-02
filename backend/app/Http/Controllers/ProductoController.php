@@ -45,7 +45,6 @@ class ProductoController extends Controller
      */
     public function update(Request $request, Producto $producto)
     {
-        //FIXME: Me está dando error : 405 Method Not Allowed
         $validated = $request->validate([
             'nombre' => 'sometimes|required|string|max:255',
             'descripcion' => 'sometimes|required|string',
