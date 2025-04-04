@@ -20,7 +20,15 @@ Route::get('/', function (Request $request) {
     return 'Bienvenido a la API de iMesero';
 });
 
-Route::apiResource('productos', ProductoController::class)->middleware('auth:sanctum');
+// Rutas protegidas
+Route::apiResource('productos', ProductoController::class)
+    ->except(['index', 'show'])
+    ->middleware('auth:sanctum');
+
+// Rutas públicas
+Route::get('productos', [ProductoController::class, 'index']); // Sin middleware
+Route::get('productos/{producto}', [ProductoController::class, 'show']); // Sin middleware
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

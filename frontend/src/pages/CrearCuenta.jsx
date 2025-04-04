@@ -9,7 +9,7 @@ function CrearCuenta() {
     // Expresión regular para validar email
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    const handleLogin = (e) => {
+    async function handleLogin(e) {
         e.preventDefault();
 
         if (!emailRegex.test(email)) {
@@ -22,11 +22,44 @@ function CrearCuenta() {
             return;
         }
         setErrorMessage('');
+
+        try {
+            const response = await fetch('http://localhost:8000/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: email,
+                    email: email,
+                    password: password,
+                    password_confirmation: password2,
+                }),
+            })
+
+            if (!response.ok) {
+                // Si el servidor devuelve un error (como 500), lanza un error
+                const errorData = await response.json();
+                console.error('Error en el servidor:', errorData);
+                setErrorMessage(errorData.message || '⚠️ Error al crear la cuenta.');
+                return;
+            }
+
+            const data = await response.json();
+            console.log(data);
+
+            //alert('Cuenta creada con éxito');
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Error en la solicitud:', error);
+            setErrorMessage('⚠️ Error al conectar con el servidor.');
+        }
+
     };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#012340] text-white font-montserrat p-6">
-            
+
             {/* TÍTULO */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold italic text-center mb-16 
                           [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
@@ -36,7 +69,7 @@ function CrearCuenta() {
             {/* FORMULARIO */}
             <form className="bg-[#012340]/80 shadow-lg shadow-blue-500/50 rounded-xl px-8 pt-6 pb-8 w-80 
                             md:w-96 lg:w-[30rem] flex flex-col md:p-10 lg:p-12"
-                  onSubmit={handleLogin}>
+                onSubmit={handleLogin}>
 
                 {/* EMAIL */}
                 <div className="mb-4">
