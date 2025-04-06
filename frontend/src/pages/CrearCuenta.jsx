@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../context/AppContext';
 
 function CrearCuenta() {
+    const navigate = useNavigate();
+    const  {setToken} = useContext(AppContext);
+    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [password2, setPassword2] = useState('');
@@ -28,6 +33,7 @@ function CrearCuenta() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
                     name: email,
@@ -46,10 +52,18 @@ function CrearCuenta() {
             }
 
             const data = await response.json();
-            console.log(data);
+            console.log('La data recibida es: ', data);
 
-            //alert('Cuenta creada con éxito');
-            window.location.href = '/login';
+            // Guardar el token en el localStorage
+            localStorage.setItem('token', data.token);
+            setToken(data.token);
+
+            // Guardar el nombre de usuario en el localStorage
+            localStorage.setItem('user', data.user.name);
+
+            // Redirigir al usuario a la página de inicio
+            navigate('/');
+
         } catch (error) {
             console.error('Error en la solicitud:', error);
             setErrorMessage('⚠️ Error al conectar con el servidor.');

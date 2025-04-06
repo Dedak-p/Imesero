@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom"
+import React, { useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
+import { AppContext } from '../context/AppContext';
 
 function Login() {
+  const navigate = useNavigate();
+  const  {setToken} = useContext(AppContext);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const navigate = useNavigate();
 
   // Expresión regular para validar email
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  const handleLogin = (e) => {
+  async function handleLogin(e) {
     e.preventDefault();
 
     if (!emailRegex.test(email)) {
@@ -20,6 +23,45 @@ function Login() {
     }
 
     setErrorMessage('');
+
+    try {
+      const response = await fetch('http://localhost:8000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      })
+
+      if (!response.ok) {
+        // Si el servidor devuelve un error (como 500), lanza un error
+        const errorData = await response.json();
+        console.error('Error en el servidor:', errorData);
+        setErrorMessage(errorData.message || '⚠️ Error al identificarte.');
+        return;
+      }
+
+      const data = await response.json();
+      console.log('La data recibida es: ', data);
+
+      // Guardar el token en el localStorage
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+
+      // Guardar el nombre de usuario en el localStorage
+      localStorage.setItem('user', data.user.name);
+
+      // Redirigir al usuario a la página de inicio
+      navigate('/');
+
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+      setErrorMessage('⚠️ Error al conectar con el servidor.');
+    }
   };
 
   return (

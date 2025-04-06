@@ -5,13 +5,16 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import { BrowserRouter as Router } from 'react-router-dom';
 import axe from '@axe-core/react';
+import AppContext from './context/AppContext.jsx';
 
-  axe(React, ReactDOM, 1000);
+axe(React, ReactDOM, 1000);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
-      <App />
+      <AppContext>
+        <App />
+      </AppContext>
     </Router>
   </StrictMode>
 );
