@@ -7,6 +7,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 //Clase base que necesitamos extender para poder usar la funcionalidad seeding.
 use Illuminate\Database\Seeder;
+use Database\Seeders\ProductoSeeder;
 
 //Clase que extiende Seeder
 class DatabaseSeeder extends Seeder
@@ -19,9 +20,6 @@ class DatabaseSeeder extends Seeder
     {   
         // User::factory(10)->create(); Este codigo hubiera creado 10 usuarios de prueba
         //Este codigo crea un usuario de prueba con los valores especificados para name y email
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $this->call(ProductoSeeder::class);
     }
 }
