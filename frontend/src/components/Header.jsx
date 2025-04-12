@@ -27,7 +27,7 @@ const Header = () => {
 
 
       <div className="flex flex-col items-center">
-        <nav className="flex gap-6 text-gray-700 font-semibold">
+        <nav className="flex gap-6 text-white font-semibold">
           <Link to="/platos-calientes" className="hover:text-gray-900">
             PLATOS CALIENTES
           </Link>
