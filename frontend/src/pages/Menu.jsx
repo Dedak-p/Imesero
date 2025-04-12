@@ -11,7 +11,7 @@ const MenuPage = () => {
   useEffect(() => {
     // Hacemos la llamada a la API para obtener los productos
     Axios({
-      url: "http://192.168.1.115:8000/api/productos"
+      url: `${window.location.protocol}//${window.location.hostname}:8000/api/productos`,
     }).then((response) => {
       setMenu(response.data);
     }).catch((error) => {
@@ -36,6 +36,7 @@ const MenuPage = () => {
       console.log("Este producto ya está en el carrito.");
     }
   };
+
   return (
     <>
       <Header />
