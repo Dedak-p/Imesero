@@ -19,4 +19,9 @@ class Producto extends Model
         'imagen',
 
     ];
+
+    //Función para referenciar que un producto puede estar en múltiples pedidos
+    public function pedidos () {
+        return $this->hasMany(Pedido::class);
+    }
 }
