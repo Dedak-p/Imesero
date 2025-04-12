@@ -1,4 +1,5 @@
-import React from "react"
+import React from "react";
+
 import { useNavigate } from "react-router-dom"
 import { useContext, useState } from "react"
 import { AppContext } from "../context/AppContext.jsx"
@@ -45,6 +46,8 @@ function Home() {
         }
     }
 
+
+    
 
     return (
         <>

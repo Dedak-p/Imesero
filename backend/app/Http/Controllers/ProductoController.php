@@ -11,9 +11,13 @@ class ProductoController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        return Producto::all();
-    }
+{
+    // Obtener todos los productos
+    $productos = Producto::all();
+
+    // Devolver los productos como respuesta JSON
+    return response()->json($productos);
+}
 
     /**
      * Store a newly created resource in storage.

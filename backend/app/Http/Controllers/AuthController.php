@@ -53,6 +53,33 @@ class AuthController extends Controller {
         ], 200);
     }
 
+    public function deleteUser(Request $request){
+        $request->validate([
+            'email' => 'required|string|email|max:255|exists:users,email',
+        ]);
+
+        //Buscar el usuario y eliminarlo
+        $user = User::where('email',$request->email)->first();
+
+        if($user){
+            $user->delete();
+            return response()->json(['message' => 'Usuario eliminado correctamente'], 200);
+        }
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
+    }
+
+    public function getAllUsers()
+    {
+        // Obtener todos los usuarios de la base de datos
+        $users = User::all();
+
+        // Devolver los usuarios en formato JSON
+        return response()->json([
+            'message' => 'Usuarios obtenidos correctamente',
+            'users' => $users
+        ], 200);  // 200 es el código de éxito
+    }
+
     public function logout(Request $request) {
         $request->user()->tokens()->delete();
 
