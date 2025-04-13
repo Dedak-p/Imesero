@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController; 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ComandaController;
 
 
 //Laravel crea automáticamente las rutas RESTful necesarias para las operaciones
@@ -40,6 +41,14 @@ Route::get('/usersAll',[AuthController::class, 'getAllUsers']);
 
 //Pedidos 
 Route::get('/pedidos',[PedidoController::class,'show']);
-Route::post('/pedidosP',[PedidoController::class, 'store']);
+Route::get('/pedidos/{pedido}',[PedidoController::class,'show']);
+Route::post('/pedidos',[PedidoController::class, 'store']);
+Route::post('/pedidosAuth',[PedidoController::class, 'storeWithAuth'])->middleware('auth:sanctum');
 Route::delete('/pedidos/{pedido}',[PedidoController::class,'delete']);
 
+//Comandas
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/comandas', [ComandaController::class, 'index']);
+    Route::put('/comandas/{id}', [ComandaController::class, 'cerrar']);
+    Route::delete('/comandas/{comanda}', [ComandaController::class, 'destroy']);
+});

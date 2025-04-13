@@ -8,6 +8,8 @@ const MenuPage = () => {
   // Menú variable de estado = array vacío por defecto
   const [menu, setMenu] = useState([]);
 
+  const { mesaId } = useContext(AppContext);
+
   useEffect(() => {
     // Hacemos la llamada a la API para obtener los productos
     Axios({
@@ -22,20 +24,36 @@ const MenuPage = () => {
 
   const handleAddToCart = async (producto) => {
     try {
-      const response = await Axios.post('http://192.168.1.115:8000/api/pedidosP', {
-        producto_id: producto.id,
-        mesa_id: 1 // O la mesa que corresponda
-      });
-  
+      // Obtener el token de autenticación desde el localStorage (ajústalo según tu flujo)
+      const token = localStorage.getItem('token');  
+
+      // Determinar el endpoint de acuerdo a la autenticación
+      const endpoint = token 
+        ? `${window.location.protocol}//${window.location.hostname}:8000/api/pedidosAuth`  // Si el usuario está autenticado
+        : `${window.location.protocol}//${window.location.hostname}:8000/api/pedidos`;      // Si no está autenticado
+
+      // Realizar la solicitud POST con el header Authorization si hay un token
+      const response = await Axios.post(
+        endpoint,
+        {
+          producto_id: producto.id,
+          mesa_id: mesaId// O la mesa que corresponda
+        },
+        {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}  // Añadir Authorization si hay token
+        }
+      );
+
       console.log('Pedido creado en el backend correctamente:', response.data);
-  
+
       // Aquí podrías mostrar un mensaje de éxito si quieres
       // alert('Pedido añadido correctamente');
-  
+
     } catch (error) {
       console.error('Error al crear el pedido:', error);
     }
   };
+
 
   return (
     <>

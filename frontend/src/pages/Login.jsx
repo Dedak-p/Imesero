@@ -25,7 +25,7 @@ function Login() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/login', {
+      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

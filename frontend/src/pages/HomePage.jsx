@@ -15,7 +15,7 @@ function Home() {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:8000/api/logout', {
+            const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/logout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -45,10 +45,6 @@ function Home() {
             console.error('Error en la solicitud:', error);
         }
     }
-
-
-    
-
     return (
         <>
             {/* Contenedor principal con fondo y altura completa */}

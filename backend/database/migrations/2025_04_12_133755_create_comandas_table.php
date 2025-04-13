@@ -13,11 +13,6 @@ return new class extends Migration
     {
         Schema::create('comandas', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('mesa_id');
-
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
-
             // Estado de la comanda: solo puede ser 'activa' o 'cerrada'
             $table->boolean('estado')->default(true);
 

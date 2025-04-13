@@ -12,7 +12,7 @@ class Comanda extends Model
     protected $table = 'comandas'; // Asegúrate de que la tabla en la base de datos se llame 'comandas'.
 
     // Definimos los atributos asignables en masa.
-    protected $fillable = ['user_id','mesa_id', 'estado']; // Estos son los campos que se podrán asignar directamente en masa (como en un `create` o `update`).
+    protected $fillable = [ 'estado']; // Estos son los campos que se podrán asignar directamente en masa (como en un `create` o `update`).
 
     /**
      * Relación entre Comanda y Pedido: Una comanda puede tener muchos pedidos.
@@ -43,10 +43,5 @@ class Comanda extends Model
      * $comanda = Comanda::find(1);
      * $usuario = $comanda->user; // Obtiene el usuario asociado a esta comanda.
      */
-    public function user()
-    {
-        // Aquí decimos que cada comanda "pertenece a" un usuario específico, por eso usamos `belongsTo`.
-        // La relación es de muchos a uno: un usuario puede tener muchas comandas.
-        return $this->belongsTo(User::class);
-    }
+  
 }
