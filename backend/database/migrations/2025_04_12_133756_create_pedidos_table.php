@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             
             // Relacionar el pedido con un usuario
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             
             // Relacionar el pedido con un producto
             $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
             
             // Mesa ID como campo normal (no clave foránea)
-            $table->unsignedBigInteger('mesa_id')->nullable();
+            $table->unsignedBigInteger('mesa_id');
             
             // Relacionar el pedido con una comanda
             $table->foreignId('comanda_id')->constrained('comandas')->onDelete('cascade');

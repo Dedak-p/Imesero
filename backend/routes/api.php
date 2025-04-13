@@ -2,7 +2,7 @@
 //Archivo donde definimos las rutas de nuestra API (Interaccion con el backend mediante solicitudes HTTP)
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ProductController; //Se importa ProductController 
+use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController; 
 use App\Http\Controllers\AuthController;
 
@@ -36,4 +36,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::delete('/delete-user',[AuthController::class,'deleteUser']);
 Route::get('/usersAll',[AuthController::class, 'getAllUsers']);
+
+
+//Pedidos 
+Route::get('/pedidos',[PedidoController::class,'show']);
+Route::post('/pedidosP',[PedidoController::class, 'store']);
+Route::delete('/pedidos/{pedido}',[PedidoController::class,'delete']);
 

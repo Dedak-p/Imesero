@@ -12,7 +12,7 @@ class Comanda extends Model
     protected $table = 'comandas'; // Asegúrate de que la tabla en la base de datos se llame 'comandas'.
 
     // Definimos los atributos asignables en masa.
-    protected $fillable = ['user_id', 'estado']; // Estos son los campos que se podrán asignar directamente en masa (como en un `create` o `update`).
+    protected $fillable = ['user_id','mesa_id', 'estado']; // Estos son los campos que se podrán asignar directamente en masa (como en un `create` o `update`).
 
     /**
      * Relación entre Comanda y Pedido: Una comanda puede tener muchos pedidos.

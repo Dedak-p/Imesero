@@ -12,7 +12,7 @@ class Pedido extends Model
     protected $table = 'pedidos'; // Esto especifica que la tabla asociada al modelo es 'pedidos'.
 
     // Definimos los atributos asignables en masa.
-    protected $fillable = ['user_id', 'producto_id','comanda_id' 'estado', 'mesa_id']; 
+    protected $fillable = ['user_id', 'producto_id','comanda_id', 'estado' , 'mesa_id']; 
     // Estos son los campos de la tabla 'pedidos' que se pueden asignar en masa.
 
     /**
