@@ -10,7 +10,7 @@ const ItemPage = () => {
             <div className='p-4 mt-25 flex flex-col items-center'>
                 <SeccionTitulo titulo="Item selecionado" />
                 
-                <Item />
+                <Item  />
 
                 <SeccionTitulo titulo="Descripción" />
                 <p>

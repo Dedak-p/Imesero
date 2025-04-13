@@ -20,20 +20,20 @@ const MenuPage = () => {
   }, []);
 
 
-  const handleAddToCart = (producto) => {
-    // Obtenemos el carrito almacenado en el localStorage
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  const handleAddToCart = async (producto) => {
+    try {
+      const response = await Axios.post('http://192.168.1.115:8000/api/pedidosP', {
+        producto_id: producto.id,
+        mesa_id: 1 // O la mesa que corresponda
+      });
   
-    // Verificamos si el producto ya está en el carrito
-    const productoExistente = carrito.some(item => item.id === producto.id);
+      console.log('Pedido creado en el backend correctamente:', response.data);
   
-    if (!productoExistente) {
-      // Si el producto no está en el carrito, lo agregamos
-      carrito.push(producto);
-      // Actualizamos el carrito en el localStorage
-      localStorage.setItem("carrito", JSON.stringify(carrito));
-    } else {
-      console.log("Este producto ya está en el carrito.");
+      // Aquí podrías mostrar un mensaje de éxito si quieres
+      // alert('Pedido añadido correctamente');
+  
+    } catch (error) {
+      console.error('Error al crear el pedido:', error);
     }
   };
 
