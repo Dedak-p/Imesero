@@ -1,22 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-const ItemCarrito = ({ producto, onRemoveFromCart, onUpdateQuantity }) => {
-  const [cantidad, setCantidad] = useState(1); // Estado para la cantidad
-
-  // Función para incrementar la cantidad
-  const incrementarCantidad = () => {
-    setCantidad(cantidad + 1);
-    onUpdateQuantity(producto, cantidad + 1);
-  };
-
-  // Función para decrementar la cantidad
-  const decrementarCantidad = () => {
-    if (cantidad > 1) {
-      setCantidad(cantidad - 1);
-      onUpdateQuantity(producto, cantidad - 1);
-    }
-  };
-
+const ItemCarrito = ({ producto, cantidad, onIncrementar, onDecrementar, onRemove }) => {
   return (
     <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-300 rounded-lg overflow-hidden shadow-md">
       <div className="flex flex-1">
@@ -36,14 +20,14 @@ const ItemCarrito = ({ producto, onRemoveFromCart, onUpdateQuantity }) => {
 
       <div className="flex items-center justify-between w-full py-2 px-4 border-t border-gray-300">
         <button
-          onClick={decrementarCantidad}
+          onClick={onDecrementar}
           className="bg-gray-300 text-black px-2 py-1 rounded hover:bg-gray-400 transition"
         >
           -
         </button>
         <span className="text-lg font-semibold">{cantidad}</span>
         <button
-          onClick={incrementarCantidad}
+          onClick={onIncrementar}
           className="bg-gray-300 text-black px-2 py-1 rounded hover:bg-gray-400 transition"
         >
           +
@@ -51,7 +35,7 @@ const ItemCarrito = ({ producto, onRemoveFromCart, onUpdateQuantity }) => {
       </div>
 
       <button
-        onClick={() => onRemoveFromCart(producto)}
+        onClick={() => onRemove(producto)}
         className="w-full py-2 bg-red-700 text-white border-t border-gray-300 hover:bg-red-600 transition-colors"
       >
         Eliminar del carrito

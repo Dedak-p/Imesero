@@ -6,11 +6,17 @@ export const AppContext = createContext();
 export default function AppProvider({ children }) {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [user, setUser] = useState(null);
-    const [mesaId,setMesaId] = useState("");
+    const [mesaId, setMesaId] = useState(() => {
+        const savedMesaId = localStorage.getItem('mesaId');
+        if (savedMesaId) {
+            return parseInt(savedMesaId, 10); 
+        }
+        const newMesaId = Math.floor(Math.random() * 21); 
+        localStorage.setItem('mesaId', newMesaId); 
+        return newMesaId;
+    });
 
-    const generarIdMesa = () => {
-        return Math.floor(Math.random() * 21);
-    }
+
 
 
     async function getUser() {
@@ -35,8 +41,7 @@ export default function AppProvider({ children }) {
 
     useEffect(() => {
 
-        const idMesaGenerado = generarIdMesa();
-        setMesaId(idMesaGenerado);
+
         if (token) {
             getUser();
         }
@@ -44,7 +49,7 @@ export default function AppProvider({ children }) {
 
 
     return (
-        <AppContext.Provider value={{ token, setToken, user, setUser }}>
+        <AppContext.Provider value={{ token, setToken, user, setUser , mesaId}}>
             {children}
         </AppContext.Provider>
     );

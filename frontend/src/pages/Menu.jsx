@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Axios from "axios";
 import Header from "../components/Header";
 import Item from '../components/Item';
 import SeccionTitulo from '../components/SeccionTitulo';
+import { AppContext } from "../context/AppContext.jsx"
 
 const MenuPage = () => {
   // Menú variable de estado = array vacío por defecto
@@ -37,7 +38,7 @@ const MenuPage = () => {
         endpoint,
         {
           producto_id: producto.id,
-          mesa_id: mesaId// O la mesa que corresponda
+          mesa_id: mesaId 
         },
         {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}  // Añadir Authorization si hay token

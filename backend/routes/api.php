@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\ProductoController; 
+use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComandaController;
 
@@ -35,16 +35,16 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::delete('/delete-user',[AuthController::class,'deleteUser']);
-Route::get('/usersAll',[AuthController::class, 'getAllUsers']);
+Route::delete('/delete-user', [AuthController::class, 'deleteUser']);
+Route::get('/usersAll', [AuthController::class, 'getAllUsers']);
 
 
 //Pedidos 
-Route::get('/pedidos',[PedidoController::class,'show']);
-Route::get('/pedidos/{pedido}',[PedidoController::class,'show']);
-Route::post('/pedidos',[PedidoController::class, 'store']);
-Route::post('/pedidosAuth',[PedidoController::class, 'storeWithAuth'])->middleware('auth:sanctum');
-Route::delete('/pedidos/{pedido}',[PedidoController::class,'delete']);
+Route::get('/pedidos', [PedidoController::class, 'show']);
+Route::get('/pedidos/{pedido}', [PedidoController::class, 'show']);
+Route::post('/pedidos', [PedidoController::class, 'store']);
+Route::post('/pedidosAuth', [PedidoController::class, 'storeWithAuth'])->middleware('auth:sanctum');
+Route::delete('/pedidos/{pedido}', [PedidoController::class, 'delete']);
 
 //Comandas
 Route::middleware('auth:sanctum')->group(function () {
@@ -52,3 +52,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/comandas/{id}', [ComandaController::class, 'cerrar']);
     Route::delete('/comandas/{comanda}', [ComandaController::class, 'destroy']);
 });
+Route::get('/comandaMesa/{mesa_id}', [ComandaController::class, 'getPedidosPorMesa']);
+Route::get('/cantidadProductoComanda/{mesa_id}/{producto_id}',[ComandaController::class,'cantidadProductoMesa']);
