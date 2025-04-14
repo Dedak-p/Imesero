@@ -19,4 +19,11 @@ class Producto extends Model
         'imagen',
 
     ];
+
+    public function comandas()
+    {
+        return $this->belongsToMany(Comanda::class, 'comanda_producto')
+            ->withPivot('cantidad')
+            ->withTimestamps();
+    }
 }
