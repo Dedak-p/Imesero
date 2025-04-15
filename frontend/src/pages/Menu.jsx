@@ -7,11 +7,12 @@ import SeccionTitulo from '../components/SeccionTitulo';
 const MenuPage = () => {
   // Menú variable de estado = array vacío por defecto
   const [menu, setMenu] = useState([]);
+  const [comanda, setComanda] = useState([]);
 
   useEffect(() => {
     // Hacemos la llamada a la API para obtener los productos
     Axios({
-      url: "http://192.168.1.115:8000/api/productos"
+      url: "http://localhost:8000/api/productos"
     }).then((response) => {
       setMenu(response.data);
     }).catch((error) => {
@@ -20,22 +21,44 @@ const MenuPage = () => {
   }, []);
 
 
-  const handleAddToCart = (producto) => {
-    // Obtenemos el carrito almacenado en el localStorage
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  const handleAddToCart = async (producto) => {
+    try {
+      // Verificar si ya existe una comanda activa
+      let comandaId = localStorage.getItem("comandaId");
   
-    // Verificamos si el producto ya está en el carrito
-    const productoExistente = carrito.some(item => item.id === producto.id);
+      if (!comandaId) {
+        // Crear una nueva comanda si no existe
+        const response = await Axios.post("http://localhost:8000/api/comandas", {
+          user_id: 1, // Cambia esto por el ID del usuario actual
+          mesa: 1, // Cambia esto por el número de mesa actual
+          estado: "pendiente",
+          fecha: new Date().toISOString(),
+          total: 0, // Inicialmente 0, se actualizará más tarde
+          forma_pago: "pendiente" // Cambia según sea necesario
+        });
   
-    if (!productoExistente) {
-      // Si el producto no está en el carrito, lo agregamos
-      carrito.push(producto);
-      // Actualizamos el carrito en el localStorage
-      localStorage.setItem("carrito", JSON.stringify(carrito));
-    } else {
-      console.log("Este producto ya está en el carrito.");
+        // Guardar el ID de la comanda creada
+        comandaId = response.data.id;
+        localStorage.setItem("comandaId", comandaId);
+      }
+  
+      // Agregar el producto a la tabla comanda_producto
+      await Axios.post("http://localhost:8000/api/comanda_producto", {
+        comanda_id: comandaId,
+        producto_id: producto.id,
+        cantidad: 1 // Cambia esto según la cantidad deseada
+      });
+  
+      console.log("Producto agregado a la comanda.");
+    } catch (error) {
+      console.error("Error al agregar el producto a la comanda:", error);
     }
   };
+
+  /*const handleCreateComanda = () => {
+    
+  }*/
+
   return (
     <>
       <Header />

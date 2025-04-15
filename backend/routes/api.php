@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController; //Se importa ProductController 
 use App\Http\Controllers\ProductoController; 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ComandaController; //Se importa ComandaController
 
 
 //Laravel crea automáticamente las rutas RESTful necesarias para las operaciones
@@ -37,3 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::delete('/delete-user',[AuthController::class,'deleteUser']);
 Route::get('/usersAll',[AuthController::class, 'getAllUsers']);
 
+// Rutas para Comanda
+Route::apiResource('comandas', ComandaController::class);
+
+Route::post('/comanda_producto', [ComandaController::class, 'addProducto']);
