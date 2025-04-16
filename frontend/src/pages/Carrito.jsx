@@ -16,6 +16,7 @@ const CarritoPage = () => {
         const response = await axios.get(
           `${window.location.protocol}//${window.location.hostname}:8000/api/comandaMesa/${mesaId}`
         );
+        console.log(response.data);
         setCarrito(response.data);
       } catch (error) {
         console.error("Error al cargar los pedidos del carrito", error);
@@ -28,40 +29,56 @@ const CarritoPage = () => {
 
   // Obtener los productos con base en los ids del carrito
   useEffect(() => {
+    //Petición asíncrona
     const obtenerProductos = async () => {
       try {
+        //Almacenamos el id de los productos devolviendome un map de idProductos
         const idsProductos = carrito.map(item => item.producto_id);
+        //Realizamos tantas peticiónes como id de productos encontremos para que la api nos devuelva todos los productos
         const respuestas = await Promise.all(
           idsProductos.map(id =>
             axios.get(`${window.location.protocol}//${window.location.hostname}:8000/api/productos/${id}`)
           )
         );
+        //Obtenemos la información de cada producto , accediendo a cada elemento de la respuesta 
         const productosData = respuestas.map(res => res.data);
+        //Almacenamos los productos correspondientes al carrito y a la mesa 
         setProductos(productosData);
       } catch (error) {
         console.error("Error al cargar los productos", error);
       }
     };
 
+
+    //Verificamos que existan pedidos dentro del carrito y llamamos a la función  que acabamos de definir 
     if (carrito.length > 0) {
       obtenerProductos();
     }
   }, [carrito]);
 
-  // Agrupar productos por producto_id
-  const agruparProductos = () => {
-    const mapa = new Map();
 
-    carrito.forEach((item) => {
-      if (mapa.has(item.producto_id)) {
-        mapa.get(item.producto_id).cantidad += 1;
+
+  // Agrupar pedidos por producto_id 
+  // Función que muestra la cantidad X de productos coincidentes dentro de un mismo carrito 
+  const agruparProductos = () => {
+    const mapa = new Map(); // Creamos un Map para agrupar por producto_id
+
+    // Para cada pedido dentro del carrito
+    carrito.forEach((pedido) => {
+      // Si ya hay un producto con ese producto_id en el mapa, aumentamos la cantidad
+      if (mapa.has(pedido.producto_id)) {
+        // Obtenemos el objeto existente y le sumamos 1 a la cantidad
+        mapa.get(pedido.producto_id).cantidad += 1;
       } else {
-        mapa.set(item.producto_id, { ...item, cantidad: 1 });
+        // Si no existe, lo agregamos al mapa con cantidad 1
+        mapa.set(pedido.producto_id, { ...pedido, cantidad: 1 });
       }
     });
 
+    // Convertimos el Map en un array de objetos agrupados y lo devolvemos
     return Array.from(mapa.values());
   };
+
 
   const eliminarPedido = async (idPedido) => {
     try {
@@ -73,38 +90,18 @@ const CarritoPage = () => {
     }
   };
 
-  const handleAddToCart = async (producto) => {
+
+
+
+
+
+  //Función que elimina un producto de la vista de carrito, cuando el contador de cantidad llega a 0
+  const handleRemoveFromCart = async (productoId) => {
     try {
-      const token = localStorage.getItem('token');
-
-      const endpoint = token
-        ? `${window.location.protocol}//${window.location.hostname}:8000/api/pedidosAuth`
-        : `${window.location.protocol}//${window.location.hostname}:8000/api/pedidos`;
-
-      const response = await axios.post(
-        endpoint,
-        {
-          producto_id: producto.producto_id,
-          mesa_id: mesaId
-        },
-        {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        }
-      );
-
-      console.log('Pedido creado correctamente:', response.data);
-
-      setCarrito(prevCarrito => [...prevCarrito, response.data]);
-    } catch (error) {
-      console.error('Error al crear el pedido:', error);
-    }
-  };
-
-  const handleRemoveFromCart = async (producto) => {
-    try {
-      // Buscar un pedido específico de ese producto
-      const pedidoAEliminar = carrito.find(item => item.producto_id === producto.producto_id);
+      //Obtenemos el pedido a eliminar , buscamos en el carrito(conjunto de pedidos) , que pedidos tienen el mismo producto_id pasado por parámetro y eliminamos un pedido
+      const pedidoAEliminar = carrito.find(item => item.producto_id === productoId);
       if (pedidoAEliminar) {
+        //Llamamos a la API para eliminar un pedido 
         await eliminarPedido(pedidoAEliminar.id);
       }
     } catch (error) {
@@ -112,8 +109,55 @@ const CarritoPage = () => {
     }
   };
 
-  const productosAgrupados = agruparProductos();
 
+
+
+
+
+  const handleAddToCart = async (producto) => {
+    try {
+      // Obtener el token de autenticación desde el localStorage (ajústalo según tu flujo)
+      const token = localStorage.getItem('token');
+
+      // Determinar el endpoint de acuerdo a la autenticación
+      const endpoint = token
+        ? `${window.location.protocol}//${window.location.hostname}:8000/api/pedidosAuth`  // Si el usuario está autenticado
+        : `${window.location.protocol}//${window.location.hostname}:8000/api/pedidos`;      // Si no está autenticado
+
+      // Realizar la solicitud POST con el header Authorization si hay un token
+      const response = await axios.post(
+        endpoint,
+        {
+          producto_id: producto.id,
+          mesa_id: mesaId
+        },
+        {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}  // Añadir Authorization si hay token
+        }
+      );  
+
+      console.log(response.data.pedido);
+      const pedido = response.data.pedido;
+      const nuevoPedido = {
+        id: pedido.id,
+        user_id: pedido.user_id,
+        producto_id: pedido.producto_id,
+        mesa_id: mesaId,
+        comanda_id: pedido.comanda_id,
+      };
+      
+      // Añadirlo al carrito
+      setCarrito(prevCarrito => [...prevCarrito, nuevoPedido]);
+      /*console.log(response.data);
+      const obtenerPedido =  await axios.get(`${window.location.protocol}//${window.location.hostname}:8000/api/pedidos/${response.id}`);
+      setCarrito(prevCarrito => [...prevCarrito,obtenerPedido]);*/
+
+    } catch (error) {
+      console.error('Error al crear el pedido:', error);
+    }
+  };
+
+  const productosAgrupados = agruparProductos();
   return (
     <>
       <Header />
@@ -121,25 +165,31 @@ const CarritoPage = () => {
         <SeccionTitulo titulo="Este es tu carrito" />
 
         <div className="mt-4">
-          {productosAgrupados.length > 0 ? (
-            productosAgrupados.map((item) => {
-              // Encuentra el producto correspondiente en los datos de productos
-              const producto = productos.find(p => p.id === item.producto_id);
-              return producto ? (
-                <ItemCarrito
-                  key={producto.id}
-                  producto={producto}
-                  cantidad={item.cantidad}
-                  onAdd={() => handleAddToCart(producto)}
-                  onRemove={() => handleRemoveFromCart(producto)}
-                />
-              ) : (
-                <p key={item.producto_id}>Cargando producto...</p>
-              );
-            })
-          ) : (
-            <p>No hay productos en el carrito.</p>
-          )}
+          {productosAgrupados.length > 0 ?
+
+            //Si existen productos dentro del carrito 
+            (
+              //Para cada item dentro de productosAgrupados ejecutamos la siguiente función anónima
+              productosAgrupados.map((item) => {
+                //Obtenemos el producto 
+                const producto = productos.find(p => p.id === item.producto_id);
+                return producto ? (
+
+                  <ItemCarrito
+                    key={producto.id}
+                    producto={producto}
+                    cantidad={item.cantidad}
+                    productoId={producto.id}
+                    onAdd={() => handleAddToCart(producto)}
+                    onRemove={() => handleRemoveFromCart(producto.id)}
+                  />
+                ) : (
+                  <p key={item.producto_id}>Cargando producto...</p>
+                );
+              })
+            ) : (
+              <p>No hay productos en el carrito.</p>
+            )}
         </div>
       </div>
     </>

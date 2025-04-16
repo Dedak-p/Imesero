@@ -1,6 +1,6 @@
 import React from "react";
 
-const ItemCarrito = ({ producto, cantidad, onIncrementar, onDecrementar, onRemove }) => {
+const ItemCarrito = ({ producto, cantidad, onAdd, onRemove }) => {
   return (
     <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-300 rounded-lg overflow-hidden shadow-md">
       <div className="flex flex-1">
@@ -20,26 +20,19 @@ const ItemCarrito = ({ producto, cantidad, onIncrementar, onDecrementar, onRemov
 
       <div className="flex items-center justify-between w-full py-2 px-4 border-t border-gray-300">
         <button
-          onClick={onDecrementar}
+          onClick={() => onRemove(producto)}
           className="bg-gray-300 text-black px-2 py-1 rounded hover:bg-gray-400 transition"
         >
           -
         </button>
         <span className="text-lg font-semibold">{cantidad}</span>
         <button
-          onClick={onIncrementar}
+          onClick={() => onAdd(producto)}
           className="bg-gray-300 text-black px-2 py-1 rounded hover:bg-gray-400 transition"
         >
           +
         </button>
       </div>
-
-      <button
-        onClick={() => onRemove(producto)}
-        className="w-full py-2 bg-red-700 text-white border-t border-gray-300 hover:bg-red-600 transition-colors"
-      >
-        Eliminar del carrito
-      </button>
     </div>
   );
 };
