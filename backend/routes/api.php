@@ -42,3 +42,5 @@ Route::get('/usersAll',[AuthController::class, 'getAllUsers']);
 Route::apiResource('comandas', ComandaController::class);
 
 Route::post('/comanda_producto', [ComandaController::class, 'addProducto']);
+
+Route::get('/comandas/{comanda}/productos', [ComandaController::class, 'getProductosComanda']);

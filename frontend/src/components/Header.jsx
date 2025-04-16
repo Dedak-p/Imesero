@@ -19,9 +19,11 @@ const Header = () => {
             <img src={Usuario} alt="Icono personalizado" className="w-10 h-7" />
           </button>
 
+        <Link to="/carrito">
           <button className="  ">
             <img src={Caja} alt="Icono personalizado" className="w-10 h-7 " />
           </button>
+        </Link>
         </div>
       </div>
 

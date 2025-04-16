@@ -82,26 +82,56 @@ class ComandaController extends Controller {
         ]);
 
         try {
-            // Obtener la comanda
             $comanda = Comanda::findOrFail($validatedData['comanda_id']);
-
-            // Agregar el producto a la tabla intermedia usando attach
-            $comanda->productos()->attach($validatedData['producto_id'], [
-                'cantidad' => $validatedData['cantidad'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // Actualizar el total de la comanda
             $producto = Producto::findOrFail($validatedData['producto_id']);
+    
+            // Revisar si ya existe el producto en la comanda
+            $existing = $comanda->productos()->where('producto_id', $producto->id)->first();
+    
+            if ($existing) {
+                // Ya existe → actualizar la cantidad en la tabla pivote
+                $currentCantidad = $existing->pivot->cantidad;
+                $newCantidad = $currentCantidad + $validatedData['cantidad'];
+    
+                $comanda->productos()->updateExistingPivot($producto->id, [
+                    'cantidad' => $newCantidad,
+                    'updated_at' => now(),
+                ]);
+            } else {
+                // No existe → crear nuevo registro
+                $comanda->productos()->attach($producto->id, [
+                    'cantidad' => $validatedData['cantidad'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+    
+            // Actualizar el total de la comanda
             $comanda->total += $producto->precio * $validatedData['cantidad'];
             $comanda->save();
+    
+            return response()->json(['message' => 'Producto agregado/actualizado en la comanda exitosamente.'], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'No se pudo agregar el producto a la comanda',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-            return response()->json(['message' => 'Producto agregado a la comanda exitosamente.'], 201);
+    /**
+     * Get products of a specific comanda.
+     */
+    public function getProductosComanda(Comanda $comanda) {
+        try {
+            // Obtener los productos de la comanda
+            $productos = $comanda->productos()->withPivot('cantidad')->get();
+
+            return response()->json($productos, 200);
         } catch (\Exception $e) {
             // Manejar errores y retornar un mensaje de error
             return response()->json([
-                'error' => 'No se pudo agregar el producto a la comanda',
+                'error' => 'No se pudieron obtener los productos de la comanda',
                 'message' => $e->getMessage()
             ], 500);
         }
