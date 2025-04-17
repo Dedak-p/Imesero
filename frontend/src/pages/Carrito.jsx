@@ -57,6 +57,13 @@ const CarritoPage = () => {
   }, [carrito]);
 
 
+  const calcularTotal = () => {
+    return productosAgrupados.reduce((total, item) => {
+      const producto = productos.find(p => p.id === item.producto_id);
+      return producto ? total + producto.precio * item.cantidad : total;
+    }, 0);
+  };
+
 
   // Agrupar pedidos por producto_id 
   // Función que muestra la cantidad X de productos coincidentes dentro de un mismo carrito 
@@ -134,7 +141,7 @@ const CarritoPage = () => {
         {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}  // Añadir Authorization si hay token
         }
-      );  
+      );
 
       console.log(response.data.pedido);
       const pedido = response.data.pedido;
@@ -145,7 +152,7 @@ const CarritoPage = () => {
         mesa_id: mesaId,
         comanda_id: pedido.comanda_id,
       };
-      
+
       // Añadirlo al carrito
       setCarrito(prevCarrito => [...prevCarrito, nuevoPedido]);
       /*console.log(response.data);
@@ -161,10 +168,10 @@ const CarritoPage = () => {
   return (
     <>
       <Header />
-      <div className="p-4 mt-25 flex-col justify-content align-items-center text-center">
+      <div className="p-4 mt-25 flex-col justify-content align-items-center text-center bg-[#012340]">
         <SeccionTitulo titulo="Este es tu carrito" />
 
-        <div className="mt-4">
+        <div className="mt-4 text-white white">
           {productosAgrupados.length > 0 ?
 
             //Si existen productos dentro del carrito 
@@ -191,6 +198,8 @@ const CarritoPage = () => {
               <p>No hay productos en el carrito.</p>
             )}
         </div>
+
+        <SeccionTitulo titulo={`Precio total: ${calcularTotal().toFixed(2)} €`} />
       </div>
     </>
   );

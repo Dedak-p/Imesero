@@ -2,7 +2,26 @@ import React from "react";
 
 const ItemCarrito = ({ producto, cantidad, onAdd, onRemove }) => {
   return (
-    <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-300 rounded-lg overflow-hidden shadow-md">
+    <div className="flex mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-300 rounded-lg overflow-hidden shadow-md">
+      
+      {/* Botones +/- a la izquierda */}
+      <div className="flex flex-col items-center justify-center bg-gray-100 px-3">
+        <button
+          onClick={() => onAdd(producto)}
+          className="bg-gray-300 text-black px-3 py-1 rounded hover:bg-gray-400 transition mb-2"
+        >
+          +
+        </button>
+        <span className="text-lg font-semibold">{cantidad}</span>
+        <button
+          onClick={() => onRemove(producto)}
+          className="bg-gray-300 text-black px-3 py-1 rounded hover:bg-gray-400 transition mt-2"
+        >
+          -
+        </button>
+      </div>
+
+      {/* Contenido del producto */}
       <div className="flex flex-1">
         <div className="w-2/5 bg-gray-200 flex items-center justify-center">
           <img
@@ -16,22 +35,6 @@ const ItemCarrito = ({ producto, cantidad, onAdd, onRemove }) => {
           <p className="text-sm text-gray-600 mb-2">{producto.descripcion}</p>
           <p className="text-md font-bold text-black">{producto.precio * cantidad} €</p>
         </div>
-      </div>
-
-      <div className="flex items-center justify-between w-full py-2 px-4 border-t border-gray-300">
-        <button
-          onClick={() => onRemove(producto)}
-          className="bg-gray-300 text-black px-2 py-1 rounded hover:bg-gray-400 transition"
-        >
-          -
-        </button>
-        <span className="text-lg font-semibold">{cantidad}</span>
-        <button
-          onClick={() => onAdd(producto)}
-          className="bg-gray-300 text-black px-2 py-1 rounded hover:bg-gray-400 transition"
-        >
-          +
-        </button>
       </div>
     </div>
   );
