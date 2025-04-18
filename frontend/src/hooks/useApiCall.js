@@ -1,10 +1,10 @@
 // src/hooks/useApiCall.js
 import { useState, useEffect, useCallback } from 'react';
-import apiClient from '../api/apiClient'; // tu instancia axios configurada
+import apiClient from '../api/apiClient';
 
 /**
  * Hook genérico para realizar llamadas a la API. Las peticiones simpre devolveran array auqne el resultado no lo sea.Para evitar comprovarlo constantemente en cada componente
- * @param {string} endpoint - La ruta a la que se hará la solicitud (por ej. '/products')
+ * @param {string} endpoint - La ruta a la que se hará la solicitud (por ej. '/productes')
  * @param {string} method - Método HTTP a utilizar (por defecto 'get')
  * @param {object|null} body - Cuerpo de la solicitud (para POST, PUT, etc)
  * @param {Array} dependencies - Dependencias del useEffect para volver a ejecutar la petición

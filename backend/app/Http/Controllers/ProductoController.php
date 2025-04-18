@@ -25,12 +25,14 @@ class ProductoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'categoria_id' => 'required|exists:categorias,id',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'ingredientes' => 'required|string',
-            'precio' => 'required|numeric',
-            'categoria' => 'required|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Cambiado a nullable
+            'ingredientes' => 'nullable|string',
+            'precio' => 'required|numeric|min:0',
+            'disponible'   => 'sometimes|boolean',
+            'recomendada'   => 'sometimes|boolean', 
         ]);
 
         return Producto::create($request->all());
@@ -50,12 +52,14 @@ class ProductoController extends Controller
     public function update(Request $request, Producto $producto)
     {
         $validated = $request->validate([
+            'categoria_id' => 'sometimes|exists:categorias,id',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'nombre' => 'sometimes|required|string|max:255',
             'descripcion' => 'sometimes|required|string',
             'ingredientes' => 'sometimes|required|string',
-            'precio' => 'sometimes|required|numeric',
-            'categoria' => 'sometimes|required|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Cambiado a nullable
+            'precio' => 'sometimes|required|numeric|min:0',
+            'disponible'   => 'sometimes|boolean',
+            'recomendada'   => 'sometimes|boolean', 
         ]);
         
         $producto->update($validated);

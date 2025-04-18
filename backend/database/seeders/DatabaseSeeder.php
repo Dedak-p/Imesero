@@ -20,6 +20,11 @@ class DatabaseSeeder extends Seeder
     {   
         // User::factory(10)->create(); Este codigo hubiera creado 10 usuarios de prueba
         //Este codigo crea un usuario de prueba con los valores especificados para name y email
-        $this->call(ProductoSeeder::class);
+        $this->call([
+            MesaSeeder::class,
+            CategoriaSeeder::class,
+            ProductoSeeder::class,
+            UserSeeder::class,
+        ]);
     }
 }
