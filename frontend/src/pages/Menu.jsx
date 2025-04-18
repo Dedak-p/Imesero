@@ -3,23 +3,13 @@ import Axios from "axios";
 import Header from "../components/Header";
 import Item from '../components/Item';
 import SeccionTitulo from '../components/SeccionTitulo';
+import useApiCall from "../hooks/useApiCall";
 
 const MenuPage = () => {
   // Menú variable de estado = array vacío por defecto
-  const [menu, setMenu] = useState([]);
+  const { data: menu, loading, error, refetch } = useApiCall('/productos');
 
-  useEffect(() => {
-    // Hacemos la llamada a la API para obtener los productos
-    Axios({
-      url: "http://192.168.1.115:8000/api/productos"
-    }).then((response) => {
-      setMenu(response.data);
-    }).catch((error) => {
-      console.log(error);
-    });
-  }, []);
-
-
+  console.log(menu);
   const handleAddToCart = (producto) => {
     // Obtenemos el carrito almacenado en el localStorage
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
