@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, } from "react";
+import {  useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import SeccionTitulo from "../components/SeccionTitulo";
 import ItemCarrito from "../components/ItemCarrito";
@@ -9,6 +10,7 @@ const CarritoPage = () => {
   const { mesaId } = useContext(AppContext);
   const [carrito, setCarrito] = useState([]);
   const [productos, setProductos] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const pedidos = async () => {
@@ -86,7 +88,7 @@ const CarritoPage = () => {
     return Array.from(mapa.values());
   };
 
-
+  //Eliminamos un pedido de la comanda 
   const eliminarPedido = async (idPedido) => {
     try {
       await axios.delete(`${window.location.protocol}//${window.location.hostname}:8000/api/pedidos/${idPedido}`);
@@ -155,23 +157,19 @@ const CarritoPage = () => {
 
       // Añadirlo al carrito
       setCarrito(prevCarrito => [...prevCarrito, nuevoPedido]);
-      /*console.log(response.data);
-      const obtenerPedido =  await axios.get(`${window.location.protocol}//${window.location.hostname}:8000/api/pedidos/${response.id}`);
-      setCarrito(prevCarrito => [...prevCarrito,obtenerPedido]);*/
-
     } catch (error) {
       console.error('Error al crear el pedido:', error);
     }
   };
-
+  //Función que devuelve los productos agrupados según la cantidad de estos
   const productosAgrupados = agruparProductos();
   return (
     <>
       <Header />
-      <div className="p-4 mt-25 flex-col justify-content align-items-center text-center bg-[#012340]">
+      <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white  bg-[#012340]">
         <SeccionTitulo titulo="Este es tu carrito" />
 
-        <div className="mt-4 text-white white">
+        <div className="mt-4">
           {productosAgrupados.length > 0 ?
 
             //Si existen productos dentro del carrito 
@@ -200,6 +198,18 @@ const CarritoPage = () => {
         </div>
 
         <SeccionTitulo titulo={`Precio total: ${calcularTotal().toFixed(2)} €`} />
+
+        {/* Botón de pago al final */}
+        <div className="mt-6">
+          <button
+            onClick={() => navigate('/pagar')}
+            className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl 
+            transition-transform duration-300 hover:scale-120
+            px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
+          >
+            Pagar ahora
+          </button>
+        </div>
       </div>
     </>
   );

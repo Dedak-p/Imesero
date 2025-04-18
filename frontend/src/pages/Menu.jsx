@@ -25,14 +25,14 @@ const MenuPage = () => {
 
   const handleAddToCart = async (producto) => {
     try {
-      // Obtener el token de autenticación desde el localStorage (ajústalo según tu flujo)
+      //Obtenemos el token de sesión para verificar si un usuario se encuentra autenticado o no 
       const token = localStorage.getItem('token');  
 
       // Determinar el endpoint de acuerdo a la autenticación
       const endpoint = token 
         ? `${window.location.protocol}//${window.location.hostname}:8000/api/pedidosAuth`  // Si el usuario está autenticado
         : `${window.location.protocol}//${window.location.hostname}:8000/api/pedidos`;      // Si no está autenticado
-
+      console.log("Token" + token);
       // Realizar la solicitud POST con el header Authorization si hay un token
       const response = await Axios.post(
         endpoint,

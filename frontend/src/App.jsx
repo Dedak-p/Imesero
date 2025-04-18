@@ -13,6 +13,7 @@ function App() {
   return <>
 
     <Routes> {/*Definimos las rutas de la aplicación*/}
+      
       <Route path="/" element={<HomePage />} />  {/*Devolvemos la pagina principal*/}
       <Route path="/login" element={<Login />} /> {/*Devolvemos Login*/}
       <Route path="/crearCuenta" element={<CrearCuenta />} /> {/*Devolvemos crear cuenta*/}
