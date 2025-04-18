@@ -1,36 +1,692 @@
 openapi: 3.0.0
 info:
-  title: iMesero API
-  version: "1.0.1"
+  title: iMesero API (Cliente y Admin)
+  version: "1.0.8"
 servers:
   - url: http://localhost:8000/api
-    description: Entorno de desarrollo
+    description: Development server
+
+tags:
+  - name: Common
+    description: Autenticación y usuario
+  - name: Client
+    description: Operaciones de cliente (anónimos o autenticados)
+  - name: Admin
+    description: Operaciones de administrador
+
+paths:
+  # Common
+  /login:
+    post:
+      tags: [Common]
+      summary: Iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /logout:
+    post:
+      tags: [Common]
+      summary: Cerrar sesión
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logout exitoso
+
+  /user:
+    get:
+      tags: [Common]
+      summary: Obtener usuario autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Datos de usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # Mesas
+  /mesas:
+    get:
+      tags: [Client]
+      summary: Listar mesas
+      responses:
+        '200':
+          description: Array de mesas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mesa'
+    post:
+      tags: [Admin]
+      summary: Crear mesa
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MesaCreate'
+      responses:
+        '201':
+          description: Mesa creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mesa'
+
+  /mesas/{mesaId}:
+    parameters:
+      - $ref: '#/components/parameters/mesaId'
+    get:
+      tags: [Client]
+      summary: Detalle de mesa
+      responses:
+        '200':
+          description: Mesa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mesa'
+    put:
+      tags: [Admin]
+      summary: Actualizar mesa
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MesaUpdate'
+      responses:
+        '200':
+          description: Mesa actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mesa'
+    delete:
+      tags: [Admin]
+      summary: Eliminar mesa
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Mesa eliminada
+
+  /mesas/{mesaId}/items:
+    parameters:
+      - $ref: '#/components/parameters/mesaId'
+    post:
+      tags: [Client]
+      summary: Añadir ítem a la comanda (crea/recupera comanda)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComandaItemRequest'
+      responses:
+        '201':
+          description: Ítem añadido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComandaItemResponse'
+
+  # Categorías
+  /categorias:
+    get:
+      tags: [Client]
+      summary: Listar categorías
+      responses:
+        '200':
+          description: Array de categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+    post:
+      tags: [Admin]
+      summary: Crear categoría
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaCreate'
+      responses:
+        '201':
+          description: Categoría creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+
+  /categorias/{categoriaId}:
+    parameters:
+      - $ref: '#/components/parameters/categoriaId'
+    get:
+      tags: [Client]
+      summary: Detalle de categoría
+      responses:
+        '200':
+          description: Categoría encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+    put:
+      tags: [Admin]
+      summary: Actualizar categoría
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaUpdate'
+      responses:
+        '200':
+          description: Categoría actualizada
+    delete:
+      tags: [Admin]
+      summary: Eliminar categoría
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Categoría eliminada
+
+  # Productos
+  /productos:
+    get:
+      tags: [Client]
+      summary: Listar productos
+      responses:
+        '200':
+          description: Array de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+    post:
+      tags: [Admin]
+      summary: Crear producto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoCreate'
+      responses:
+        '201':
+          description: Producto creado
+
+  /productos/{productoId}:
+    parameters:
+      - $ref: '#/components/parameters/productoId'
+    get:
+      tags: [Client]
+      summary: Detalle de producto
+      responses:
+        '200':
+          description: Producto encontrado
+    put:
+      tags: [Admin]
+      summary: Actualizar producto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoUpdate'
+      responses:
+        '200':
+          description: Producto actualizado
+    delete:
+      tags: [Admin]
+      summary: Eliminar producto
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Producto eliminado
+
+  # Comandas
+  /comandas:
+    get:
+      tags: [Client]
+      summary: Listar comandas del cliente
+      responses:
+        '200':
+          description: Array de comandas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComandaResponse'
+    post:
+      tags: [Admin]
+      summary: Crear comanda
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComandaCreate'
+      responses:
+        '201':
+          description: Comanda creada
+
+  /comandas/{comandaId}:
+    parameters:
+      - $ref: '#/components/parameters/comandaId'
+    get:
+      tags: [Client]
+      summary: Detalle de comanda (con items y total)
+      responses:
+        '200':
+          description: Comanda encontrada
+    put:
+      tags: [Admin]
+      summary: Actualizar comanda
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComandaUpdate'
+      responses:
+        '200':
+          description: Comanda actualizada
+    delete:
+      tags: [Admin]
+      summary: Eliminar comanda
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Comanda eliminada
+
+  /comandas/{comandaId}/items:
+    parameters:
+      - $ref: '#/components/parameters/comandaId'
+    get:
+      tags: [Client]
+      summary: Listar ítems de una comanda
+      responses:
+        '200':
+          description: Array de ítems
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComandaItemResponse'
+
+  # Ítems de comanda
+  /comanda-items/{itemId}/confirm:
+    parameters:
+      - $ref: '#/components/parameters/itemId'
+    patch:
+      tags: [Client]
+      summary: Cliente confirma su ítem (por confirmar → confirmado)
+      responses:
+        '200':
+          description: Ítem confirmado
+
+  /comanda-items/{itemId}:
+    parameters:
+      - $ref: '#/components/parameters/itemId'
+    get:
+      tags: [Client]
+      summary: Obtener detalle de un ítem
+      responses:
+        '200':
+          description: Ítem encontrado
+    put:
+      tags: [Admin]
+      summary: Avanzar estado de ítem (cocina, camino, entregado…)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComandaItemUpdate'
+      responses:
+        '200':
+          description: Ítem actualizado
+    delete:
+      tags: [Admin]
+      summary: Eliminar ítem de comanda
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Ítem eliminado
+
+  # Estados de ítems
+  /estados-items:
+    get:
+      tags: [Client]
+      summary: Listar estados de ítems
+      responses:
+        '200':
+          description: Array de estados
+    post:
+      tags: [Admin]
+      summary: Crear estado de ítem
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoItemCreate'
+      responses:
+        '201':
+          description: Estado creado
+
+  /estados-items/{estadoItemId}:
+    parameters:
+      - $ref: '#/components/parameters/estadoItemId'
+    get:
+      tags: [Client]
+      summary: Detalle de estado de ítem
+      responses:
+        '200':
+          description: Estado encontrado
+    put:
+      tags: [Admin]
+      summary: Actualizar estado de ítem
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoItemUpdate'
+      responses:
+        '200':
+          description: Estado actualizado
+    delete:
+      tags: [Admin]
+      summary: Eliminar estado de ítem
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Estado eliminado
+
+  # Estados de comanda
+  /estado-comandas:
+    get:
+      tags: [Client]
+      summary: Listar estados de comanda
+      responses:
+        '200':
+          description: Array de estados
+
+  /estado-comandas/{estadoComandaId}:
+    parameters:
+      - $ref: '#/components/parameters/estadoComandaId'
+    get:
+      tags: [Client]
+      summary: Detalle de estado de comanda
+      responses:
+        '200':
+          description: Estado encontrado
+
+  # Métodos de pago
+  /metodos-pago:
+    get:
+      tags: [Client]
+      summary: Listar métodos de pago
+      responses:
+        '200':
+          description: Array de métodos
+    post:
+      tags: [Admin]
+      summary: Crear método de pago
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetodoPagoCreate'
+      responses:
+        '201':
+          description: Método creado
+
+  /metodos-pago/{metodoPagoId}:
+    parameters:
+      - $ref: '#/components/parameters/metodoPagoId'
+    put:
+      tags: [Admin]
+      summary: Actualizar método de pago
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetodoPagoUpdate'
+      responses:
+        '200':
+          description: Método actualizado
+    delete:
+      tags: [Admin]
+      summary: Eliminar método de pago
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Método eliminado
+
+  # Pagos
+  /pagos:
+    get:
+      tags: [Admin]
+      summary: Listar pagos
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array de pagos
+    post:
+      tags: [Admin]
+      summary: Registrar pago
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagoCreate'
+      responses:
+        '201':
+          description: Pago registrado
+
+  /pagos/{pagoId}:
+    parameters:
+      - $ref: '#/components/parameters/pagoId'
+    get:
+      tags: [Admin]
+      summary: Detalle de pago
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Pago encontrado
+    put:
+      tags: [Admin]
+      summary: Actualizar pago
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagoUpdate'
+      responses:
+        '200':
+          description: Pago actualizado
+    delete:
+      tags: [Admin]
+      summary: Eliminar pago
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Pago eliminado
+
+  # Usuarios
+  /usersAll:
+    get:
+      tags: [Admin]
+      summary: Listar usuarios
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array de usuarios
+
+  /delete-user:
+    delete:
+      tags: [Admin]
+      summary: Eliminar usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Usuario eliminado
 
 components:
+  parameters:
+    mesaId:
+      name: mesaId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 1
+    categoriaId:
+      name: categoriaId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 3
+    productoId:
+      name: productoId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 5
+    comandaId:
+      name: comandaId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 7
+    itemId:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 12
+    estadoItemId:
+      name: estadoItemId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 1
+    estadoComandaId:
+      name: estadoComandaId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 2
+    metodoPagoId:
+      name: metodoPagoId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 1
+    pagoId:
+      name: pagoId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 3
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: Token
 
   schemas:
-    RegisterRequest:
-      type: object
-      required: [name, email, password, password_confirmation]
-      properties:
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-        password_confirmation:
-          type: string
-
     LoginRequest:
       type: object
-      required: [email, password]
+      required:
+        - email
+        - password
       properties:
         email:
           type: string
@@ -55,7 +711,6 @@ components:
           type: string
         email:
           type: string
-          format: email
         role:
           type: string
 
@@ -71,16 +726,24 @@ components:
         capacidad:
           type: integer
 
-    NewMesa:
+    MesaCreate:
       type: object
-      required: [codigo, capacidad]
+      required:
+        - codigo
+        - capacidad
       properties:
         codigo:
           type: string
-        ocupada:
-          type: boolean
         capacidad:
           type: integer
+
+    MesaUpdate:
+      allOf:
+        - $ref: '#/components/schemas/MesaCreate'
+        - type: object
+          properties:
+            ocupada:
+              type: boolean
 
     Categoria:
       type: object
@@ -90,12 +753,16 @@ components:
         nombre:
           type: string
 
-    NewCategoria:
+    CategoriaCreate:
       type: object
-      required: [nombre]
+      required:
+        - nombre
       properties:
         nombre:
           type: string
+
+    CategoriaUpdate:
+      $ref: '#/components/schemas/CategoriaCreate'
 
     Producto:
       type: object
@@ -106,37 +773,62 @@ components:
           type: integer
         imagen:
           type: string
-          format: uri
         nombre:
           type: string
         descripcion:
+          type: string
+        ingredientes:
           type: string
         precio:
           type: number
           format: float
         disponible:
           type: boolean
+        recomendada:
+          type: boolean
 
-    NewProducto:
+    ProductoCreate:
       type: object
-      required: [categoria_id, nombre, precio]
+      required:
+        - categoria_id
+        - nombre
+        - precio
       properties:
         categoria_id:
           type: integer
         imagen:
           type: string
-          format: uri
         nombre:
           type: string
         descripcion:
+          type: string
+        ingredientes:
           type: string
         precio:
           type: number
           format: float
         disponible:
           type: boolean
+        recomendada:
+          type: boolean
 
-    Comanda:
+    ProductoUpdate:
+      $ref: '#/components/schemas/ProductoCreate'
+
+    ComandaCreate:
+      type: object
+      required:
+        - mesa_id
+      properties:
+        mesa_id:
+          type: integer
+        user_id:
+          type: integer
+          nullable: true
+        anonimo:
+          type: boolean
+
+    ComandaResponse:
       type: object
       properties:
         id:
@@ -148,23 +840,44 @@ components:
           nullable: true
         anonimo:
           type: boolean
-        estado:
+        estado_comanda_id:
+          type: integer
+        total:
+          type: number
+          format: float
+        created_at:
           type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        mesa:
+          $ref: '#/components/schemas/Mesa'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComandaItemResponse'
+        estadoComanda:
+          $ref: '#/components/schemas/EstadoComanda'
 
-    NewComanda:
+    ComandaUpdate:
       type: object
-      required: [mesa_id]
       properties:
-        mesa_id:
+        estado_comanda_id:
           type: integer
-        user_id:
-          type: integer
-        anonimo:
-          type: boolean
-        estado:
-          type: string
 
-    ComandaItem:
+    ComandaItemRequest:
+      type: object
+      required:
+        - producto_id
+        - cantidad
+      properties:
+        producto_id:
+          type: integer
+        cantidad:
+          type: integer
+
+    ComandaItemResponse:
       type: object
       properties:
         id:
@@ -180,22 +893,20 @@ components:
           format: float
         estado_item_id:
           type: integer
+        producto:
+          type: object
+        estado:
+          type: object
 
-    NewComandaItem:
+    ComandaItemUpdate:
       type: object
-      required: [producto_id, cantidad, precio_unitario, estado_item_id]
+      required:
+        - estado_item_id
       properties:
-        producto_id:
-          type: integer
-        cantidad:
-          type: integer
-        precio_unitario:
-          type: number
-          format: float
         estado_item_id:
           type: integer
 
-    EstadoPedidoItem:
+    EstadoItem:
       type: object
       properties:
         id:
@@ -205,642 +916,86 @@ components:
         orden:
           type: integer
 
-    NewEstadoPedidoItem:
+    EstadoItemCreate:
       type: object
-      required: [nombre, orden]
+      required:
+        - nombre
+        - orden
       properties:
         nombre:
           type: string
         orden:
           type: integer
 
-paths:
-  /register:
-    post:
-      summary: Registrar nuevo usuario
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterRequest'
-      responses:
-        '201':
-          description: Usuario registrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '422':
-          description: Errores de validación
+    EstadoItemUpdate:
+      $ref: '#/components/schemas/EstadoItemCreate'
 
-  /login:
-    post:
-      summary: Iniciar sesión
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
-      responses:
-        '200':
-          description: Autenticación exitosa
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '422':
-          description: Errores de validación
+    EstadoComanda:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+        orden:
+          type: integer
 
-  /logout:
-    post:
-      summary: Cerrar sesión
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Sesión cerrada
+    MetodoPago:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
 
-  /user:
-    get:
-      summary: Obtener usuario autenticado
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Datos de usuario
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+    MetodoPagoCreate:
+      type: object
+      required:
+        - nombre
+      properties:
+        nombre:
+          type: string
 
-  /mesas:
-    get:
-      summary: Listar mesas
-      responses:
-        '200':
-          description: Lista de mesas
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Mesa'
-    post:
-      summary: Crear nueva mesa
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewMesa'
-      responses:
-        '201':
-          description: Mesa creada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Mesa'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
+    MetodoPagoUpdate:
+      $ref: '#/components/schemas/MetodoPagoCreate'
 
-  /mesas/{id}:
-    get:
-      summary: Obtener mesa por ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Detalle de mesa
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Mesa'
-    put:
-      summary: Actualizar mesa
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewMesa'
-      responses:
-        '200':
-          description: Mesa actualizada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Mesa'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-    delete:
-      summary: Eliminar mesa
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: Mesa eliminada
-        '403':
-          description: Acceso denegado
+    Pago:
+      type: object
+      properties:
+        id:
+          type: integer
+        metodo_pago_id:
+          type: integer
+        comanda_id:
+          type: integer
+        monto:
+          type: number
+          format: float
+        referencia:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 
-  /categorias:
-    get:
-      summary: Listar categorías
-      responses:
-        '200':
-          description: Lista de categorías
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Categoria'
-    post:
-      summary: Crear categoría
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewCategoria'
-      responses:
-        '201':
-          description: Categoría creada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Categoria'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
+    PagoCreate:
+      type: object
+      required:
+        - metodo_pago_id
+        - comanda_id
+        - monto
+      properties:
+        metodo_pago_id:
+          type: integer
+        comanda_id:
+          type: integer
+        monto:
+          type: number
+          format: float
+        referencia:
+          type: string
 
-  /categorias/{id}:
-    get:
-      summary: Obtener categoría por ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Detalle de categoría
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Categoria'
-    put:
-      summary: Actualizar categoría
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewCategoria'
-      responses:
-        '200':
-          description: Categoría actualizada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Categoria'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-    delete:
-      summary: Eliminar categoría
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: Categoría eliminada
-        '403':
-          description: Acceso denegado
-
-  /productos:
-    get:
-      summary: Listar productos
-      responses:
-        '200':
-          description: Lista de productos
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Producto'
-    post:
-      summary: Crear producto
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewProducto'
-      responses:
-        '201':
-          description: Producto creado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Producto'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-
-  /productos/{id}:
-    get:
-      summary: Obtener producto por ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Detalle de producto
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Producto'
-    put:
-      summary: Actualizar producto
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewProducto'
-      responses:
-        '200':
-          description: Producto actualizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Producto'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-    delete:
-      summary: Eliminar producto
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: Producto eliminado
-        '403':
-          description: Acceso denegado
-
-  /comandas:
-    get:
-      summary: Listar comandas
-      responses:
-        '200':
-          description: Lista de comandas
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Comanda'
-    post:
-      summary: Crear comanda
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewComanda'
-      responses:
-        '201':
-          description: Comanda creada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comanda'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-
-  /comandas/{id}:
-    get:
-      summary: Obtener comanda por ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Detalle de comanda
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comanda'
-    put:
-      summary: Actualizar comanda
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewComanda'
-      responses:
-        '200':
-          description: Comanda actualizada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comanda'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-    delete:
-      summary: Eliminar comanda
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: Comanda eliminada
-        '403':
-          description: Acceso denegado
-
-  /comandas/{comanda_id}/items:
-    get:
-      summary: Listar items de una comanda
-      parameters:
-        - in: path
-          name: comanda_id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Lista de items
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ComandaItem'
-    post:
-      summary: Añadir ítem a comanda
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: comanda_id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewComandaItem'
-      responses:
-        '201':
-          description: Ítem creado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComandaItem'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-
-  /comanda-items/{id}:
-    get:
-      summary: Obtener ítem por ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Detalle de ítem
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComandaItem'
-    put:
-      summary: Actualizar ítem de comanda
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewComandaItem'
-      responses:
-        '200':
-          description: Ítem actualizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComandaItem'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-    delete:
-      summary: Eliminar ítem de comanda
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: Ítem eliminado
-        '403':
-          description: Acceso denegado
-
-  /estados-items:
-    get:
-      summary: Listar estados de ítems
-      responses:
-        '200':
-          description: Lista de estados
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EstadoPedidoItem'
-    post:
-      summary: Crear estado de ítem
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewEstadoPedidoItem'
-      responses:
-        '201':
-          description: Estado creado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstadoPedidoItem'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-
-  /estados-items/{id}:
-    get:
-      summary: Obtener estado por ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: Detalle de estado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstadoPedidoItem'
-    put:
-      summary: Actualizar estado de ítem
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewEstadoPedidoItem'
-      responses:
-        '200':
-          description: Estado actualizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstadoPedidoItem'
-        '403':
-          description: Acceso denegado
-        '422':
-          description: Errores de validación
-    delete:
-      summary: Eliminar estado de ítem
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: Estado eliminado
-        '403':
-          description: Acceso denegado
+    PagoUpdate:
+      $ref: '#/components/schemas/PagoCreate'

@@ -3,39 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ComandaItem extends Model
 {
+    // Los campos que puedas hacer mass‐assignment
     protected $fillable = [
-        'comanda_id',
-        'producto_id',
-        'cantidad',
-        'precio_unitario',
-        'estado_item_id',
+      'comanda_id',
+      'producto_id',
+      'cantidad',
+      'precio_unitario',
+      'estado_item_id',
     ];
 
-    /**
-     * Ítem pertenece a una comanda.
-     */
-    public function comanda(): BelongsTo
-    {
-        return $this->belongsTo(Comanda::class);
-    }
-
-    /**
-     * Ítem al producto correspondiente.
-     */
-    public function producto(): BelongsTo
+    // Relación al producto
+    public function producto()
     {
         return $this->belongsTo(Producto::class);
     }
 
-    /**
-     * Estado actual del ítem.
-     */
-    public function estado(): BelongsTo
+    // Relación al estado del ítem
+    public function estado()
     {
+        
         return $this->belongsTo(EstadoPedidoItem::class, 'estado_item_id');
+    }
+
+    // Relación a la comanda
+    public function comanda()
+    {
+        return $this->belongsTo(Comanda::class);
     }
 }

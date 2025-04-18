@@ -4,19 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comanda;
+use App\Models\EstadoComanda;
 use App\Models\Mesa;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ComandaController extends Controller
 {
+    /**
+     * Listar todas las comandas (con relaciones y total).
+     */
     public function index()
     {
-        return response()->json(
-            Comanda::with(['mesa','items.producto','items.estado'])->get()
-        );
+        $comandas = Comanda::with([
+            'mesa',
+            'items.producto',
+            'items.estado',
+            'estadoComanda'
+        ])->get();
+
+        return response()->json($comandas);
     }
 
+    /**
+     * Crear una nueva comanda en estado “borrador” y ocupar la mesa.
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -30,48 +42,100 @@ class ComandaController extends Controller
             ],
             'user_id' => 'nullable|exists:users,id',
             'anonimo' => 'sometimes|boolean',
-            'estado'  => ['sometimes', Rule::in(['borrador','abierta','cerrada','pagada'])],
         ]);
 
-        // Marcar mesa como ocupada
+        // 1) Marcar mesa como ocupada
         Mesa::where('id', $data['mesa_id'])->update(['ocupada' => true]);
 
-        $comanda = Comanda::create($data);
-        return response()->json($comanda->load('mesa'), 201);
-    }
+        // 2) Asignar estado “borrador”
+        $borrador = EstadoComanda::where('nombre', 'borrador')->value('id');
+        $data['estado_comanda_id'] = $borrador;
 
-    public function show(Comanda $comanda)
-    {
+        // 3) Crear la comanda
+        $comanda = Comanda::create($data);
+
+        // 4) Devolver con todas las relaciones cargadas
         return response()->json(
-            $comanda->load(['mesa','items.producto','items.estado'])
+            $comanda->load(['mesa','items.producto','items.estado','estadoComanda']),
+            201
         );
     }
 
-    public function update(Request $request, Comanda $comanda)
+    /**
+     * Mostrar una comanda específica (con relaciones y total).
+     */
+    public function show(Comanda $comanda)
     {
-        $data = $request->validate([
-            'estado' => ['sometimes', Rule::in(['borrador','abierta','cerrada','pagada'])],
-        ]);
+        return response()->json(
+            $comanda->load(['mesa','items.producto','items.estado','estadoComanda'])
+        );
+    }
 
-        $old = $comanda->estado;
-        $comanda->update($data);
+    /**
+     * Admin: confirma la comanda.
+     * Pasa de estado “pedido” → “confirmada”.
+     */
+    public function confirm(Comanda $comanda)
+    {
+        // IDs dinámicos de “pedido” y “confirmada”
+        $pedidoId     = EstadoComanda::where('nombre','pedido')->value('id');
+        $confirmadaId = EstadoComanda::where('nombre','confirmada')->value('id');
 
-        // Si se cierra o paga, liberar mesa
-        if (
-            in_array($data['estado'], ['cerrada','pagada']) &&
-            ! in_array($old, ['cerrada','pagada'])
-        ) {
-            $comanda->mesa()->update(['ocupada' => false]);
+        // Sólo desde “pedido” se puede confirmar
+        if ($comanda->estado_comanda_id !== $pedidoId) {
+            return response()->json([
+                'message' => 'Sólo se puede confirmar una comanda en estado “pedido”.'
+            ], 422);
         }
+
+        // Actualizar al estado “confirmada”
+        $comanda->update(['estado_comanda_id' => $confirmadaId]);
+
+        // Recargar relaciones
+        $comanda->refresh()->load(['mesa','items.producto','items.estado','estadoComanda']);
 
         return response()->json($comanda);
     }
 
+    /**
+     * Admin: actualizar manualmente cualquier estado de comanda
+     * (por ejemplo, a “pagada”), y liberar mesa si corresponde.
+     */
+    public function update(Request $request, Comanda $comanda)
+    {
+        $data = $request->validate([
+            'estado_comanda_id' => [
+                'sometimes','integer',
+                Rule::exists('estado_comandas','id')
+            ],
+        ]);
+
+        $old = $comanda->estado_comanda_id;
+        $comanda->update($data);
+
+        // Si pasó a “pagada”, liberamos la mesa
+        $pagadaId = EstadoComanda::where('nombre','pagada')->value('id');
+        if (
+            isset($data['estado_comanda_id']) &&
+            $data['estado_comanda_id'] === $pagadaId &&
+            $old !== $pagadaId
+        ) {
+            $comanda->mesa()->update(['ocupada' => false]);
+        }
+
+        return response()->json(
+            $comanda->load(['mesa','items.producto','items.estado','estadoComanda'])
+        );
+    }
+
+    /**
+     * Admin: eliminar una comanda y liberar la mesa.
+     */
     public function destroy(Comanda $comanda)
     {
-        // Liberar mesa
         $comanda->mesa()->update(['ocupada' => false]);
         $comanda->delete();
+
         return response()->json(null, 204);
     }
 }

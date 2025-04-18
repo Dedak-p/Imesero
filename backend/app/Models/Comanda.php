@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Comanda extends Model
 {
+    // Asegúrate de que cargas siempre los items para el cálculo
+    protected $with    = ['items','estadoComanda'];
+    protected $appends = ['total','estado_nombre'];
+
     protected $fillable = [
         'mesa_id',
         'user_id',
         'anonimo',
-        'estado',
+        'estado_comanda_id',
     ];
 
     protected $casts = [
@@ -43,13 +47,18 @@ class Comanda extends Model
         return $this->hasMany(ComandaItem::class);
     }
 
-    /**
-     * Total calculado sobre los ítems (helper).
-     */
+    public function estadoComanda(): BelongsTo
+    {
+        return $this->belongsTo(EstadoComanda::class, 'estado_comanda_id');
+    }
+
     public function getTotalAttribute(): float
     {
-        return $this->items->sum(function($item) {
-            return $item->cantidad * $item->precio_unitario;
-        });
+        return $this->items->sum(fn($i)=>$i->cantidad*(float)$i->precio_unitario);
+    }
+
+    public function getEstadoNombreAttribute(): string
+    {
+        return $this->estadoComanda->nombre;
     }
 }
