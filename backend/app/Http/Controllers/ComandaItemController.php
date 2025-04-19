@@ -42,41 +42,63 @@ class ComandaItemController extends Controller
     {
         $data = $request->validate([
             'producto_id' => 'required|exists:productos,id',
-            'cantidad'    => 'required|integer|min:1',
+            'cantidad'    => 'nullable|integer|in:1,-1',
         ]);
+    
+        $data['cantidad'] = $data['cantidad'] ?? 1;
 
+        $estadoItemBorrador = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id');
         // ID estado 'borrador'
         $borradorId = EstadoComanda::where('nombre','borrador')->value('id');
-
+    
         // Recuperar o crear la comanda en borrador
         $comanda = Comanda::firstOrCreate([
-            'mesa_id'           => $mesa->id,
-            'user_id'           => auth()->id(),
-            'anonimo'           => auth()->guest(),
+            'mesa_id' => $mesa->id,
+            'user_id' => auth()->id(),
+            'anonimo' => auth()->guest(),
+        ], [
             'estado_comanda_id' => $borradorId,
         ]);
-
-        // Si la creamos, marcamos mesa ocupada
+    
         if ($comanda->wasRecentlyCreated) {
             $mesa->update(['ocupada' => true]);
         }
-
+    
         $producto = Producto::findOrFail($data['producto_id']);
+    
+        // Sumar la cantidad si ya existe
+        $existingItem = $comanda
+            ->items()
+            ->where('producto_id', $producto->id)
+            ->first();
+    
+        if ($existingItem) {
+            $existingItem->increment('cantidad', $data['cantidad']);
+            
+            // Eliminar el ítem si la cantidad es 0 o negativa
+            if ($existingItem->cantidad <= 0) {
+                $existingItem->delete();
+                return response()->json(null, 204);
+            }
 
-        // ID estado inicial de item (“por confirmar”)
-        $inicialId = EstadoPedidoItem::orderBy('orden')->value('id');
-
+            return response()->json($existingItem->fresh()->load('producto'), 200);
+        }
+        
+        // Si no existe, lo creo incluyendo el estado inicial
         $item = $comanda->items()->create([
-            'producto_id'     => $data['producto_id'],
+            'producto_id'     => $producto->id,
             'cantidad'        => $data['cantidad'],
             'precio_unitario' => $producto->precio,
-            'estado_item_id'  => $inicialId,
+            'estado_item_id'  => $estadoItemBorrador,  // ← aquí
         ]);
-
-        return response()->json(
-            $item->load('producto','estado'),
-            201
-        );
+        
+        // Eliminar el ítem si la cantidad es 0 o negativa
+        if ($item->cantidad <= 0) {
+            $item->delete();
+            return response()->json(null, 204);
+        }
+        
+        return response()->json($item->load('producto'), 201);
     }
 
     /**

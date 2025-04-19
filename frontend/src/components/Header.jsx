@@ -5,7 +5,7 @@ import Flecha from "../assets/flecha.svg";
 import Usuario from "../assets/usuario.svg";
 
 import useApiCall from "../hooks/useApiCall";
-import CarritoDrop from "./CarritoDrop";
+// import CarritoDrop from "./CarritoDrop";
 
 const Header = () => {
   const { data: categorias, loading, error, refetch } = useApiCall('/categorias');
@@ -21,7 +21,7 @@ const Header = () => {
           <button className=" ">
             <img src={Usuario} alt="Icono personalizado" className="w-10 h-7" />
           </button>
-          <CarritoDrop />
+          {/* <CarritoDrop /> */}
         </div>
 
 
@@ -30,13 +30,11 @@ const Header = () => {
         {loading && <span>Cargando categorías…</span>}
         {error && <span>Error al cargar</span>}
         {!loading && !error && categorias.map(cat => {
-          // genera un slug para el hash: e.g. "Platos Calientes" → "platos-calientes"
           const slug = cat.nombre
             .toLowerCase()
             .replace(/\s+/g, "-")
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, ""); // quita tildes
-
+            .replace(/[\u0300-\u036f]/g, "");
           return (
             <a
               key={cat.id}
