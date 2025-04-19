@@ -3,13 +3,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom"
 import { useContext, useState } from "react"
 import { AppContext } from "../context/AppContext.jsx"
+import useApiCall from "../hooks/useApiCall.js";
 
 
 
 function Home() {
     const navigate = useNavigate();
     const { user, setUser, token, setToken } = useContext(AppContext);
-
+    const { data: mesas = [], loading, error } = useApiCall("/mesas");
+    
     // Función para cerrar sesión
     async function handleLogout(e) {
         e.preventDefault();
@@ -45,10 +47,6 @@ function Home() {
             console.error('Error en la solicitud:', error);
         }
     }
-
-
-    
-
     return (
         <>
             {/* Contenedor principal con fondo y altura completa */}
@@ -71,14 +69,43 @@ function Home() {
                         }
                     </p>
 
+                    {/* Selección de mesa */}
+                    <section className="w-full max-w-4xl mb-12">
+                        <h2 className="text-white text-3xl font-semibold mb-4 text-center">
+                        Selecciona tu mesa
+                        </h2>
+
+                        {loading && <p className="text-white text-center">Cargando mesas…</p>}
+                        {error && (
+                        <p className="text-red-400 text-center">
+                            Error cargando mesas. Inténtalo de nuevo.
+                        </p>
+                        )}
+
+                        {!loading && !error && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {mesas.map((mesa) => (
+                            <button
+                                key={mesa.id}
+                                disabled={mesa.ocupada}
+                                onClick={() => navigate(`/menu/${mesa.id}`)}
+                                className={`
+                                p-4 border rounded-xl text-center
+                                ${mesa.ocupada
+                                    ? "bg-gray-500 cursor-not-allowed text-gray-200"
+                                    : "bg-green-300 hover:bg-green-400 text-gray-800 cursor-pointer"}
+                                `}
+                            >
+                                <h3 className="text-xl font-bold">{mesa.codigo}</h3>
+                                <p>Capacidad: {mesa.capacidad}</p>
+                                <p>{mesa.ocupada ? "Ocupada" : "Libre"}</p>
+                            </button>
+                            ))}
+                        </div>
+                        )}
+                    </section>
                     {/* Contenedor de botones */}
                     <div className="flex flex-col mb-16 md:flex-row gap-6">
-                        <button
-                            className="bg-white text-[#7646e5] border border-[#7646e5] font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
-                            onClick={() => navigate('/menu')}
-                        >
-                            VER MENÚ
-                        </button>
 
                         {user ? (
                             <button

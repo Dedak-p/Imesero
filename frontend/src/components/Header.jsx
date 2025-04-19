@@ -3,13 +3,16 @@ import { Link } from "react-router-dom";
 
 import Flecha from "../assets/flecha.svg";
 import Usuario from "../assets/usuario.svg";
-import Caja from "../assets/caja.svg";
+
+import useApiCall from "../hooks/useApiCall";
+import CarritoDrop from "./CarritoDrop";
 
 const Header = () => {
+  const { data: categorias, loading, error, refetch } = useApiCall('/categorias');
   return (
-    <header className="fixed top-0 left-0  flex flex-col p-4  bg-blue-950 shadow-md  w-full">
-      <div className="flex  items-center gap-2  ">
-
+    <header className="fixed top-0 left-0  grid grid-cols-2 grid-rows-2 p-4  bg-blue-950 shadow-md  w-full">
+      
+      
         <button className=" p-2 rounded-full justify-items-start">
           <img src={Flecha} alt="Icono personalizado" className="w-10 h-7" />
         </button>
@@ -18,27 +21,34 @@ const Header = () => {
           <button className=" ">
             <img src={Usuario} alt="Icono personalizado" className="w-10 h-7" />
           </button>
-
-          <button className="  ">
-            <img src={Caja} alt="Icono personalizado" className="w-10 h-7 " />
-          </button>
+          <CarritoDrop />
         </div>
-      </div>
 
 
-      <div className="flex flex-col items-center">
-        <nav className="flex gap-6 text-white font-semibold">
-          <Link to="/platos-calientes" className="hover:text-gray-900">
-            PLATOS CALIENTES
-          </Link>
-          <Link to="/platos-frios" className="hover:text-gray-900">
-            PLATOS FRIOS
-          </Link>
-          <Link to="/bebidas" className="hover:text-gray-900">
-            BEBIDAS
-          </Link>
-        </nav>
+      <div className="flex flex-col col-span-2 items-center self-end">
+      <nav className="flex gap-6 overflow-x-auto text-white font-semibold">
+        {loading && <span>Cargando categorías…</span>}
+        {error && <span>Error al cargar</span>}
+        {!loading && !error && categorias.map(cat => {
+          // genera un slug para el hash: e.g. "Platos Calientes" → "platos-calientes"
+          const slug = cat.nombre
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, ""); // quita tildes
 
+          return (
+            <a
+              key={cat.id}
+              href={`#${slug}`}
+              className="hover:text-gray-300 whitespace-nowrap"
+            >
+              {cat.nombre.toUpperCase()}
+            </a>
+          );
+        })}
+      </nav>
+       
       </div>
 
     </header>
