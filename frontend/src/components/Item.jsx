@@ -15,7 +15,7 @@ const Item = ({ producto, onAddToCart }) => {
           <p className="text-md font-bold text-black">{producto.precio} €</p>
         </div>
       </div>
-      <button onClick={() => onAddToCart(producto)} className="w-full py-2 bg-blue-700 text-white border-t border-gray-300 hover:bg-blue-600 transition-colors">
+      <button onClick={() => onAddToCart(producto)} className="w-full py-2 bg-blue-700 text-white border-t border-gray-300 hover:bg-blue-600 transition-colors cursor-pointer">
         Añadir al carrito
       </button>
     </div>
