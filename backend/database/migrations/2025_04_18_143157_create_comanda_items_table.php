@@ -23,7 +23,10 @@ class CreateComandaItemsTable extends Migration
                   ->onDelete('restrict');
             $table->timestamps();
         });
-    }
+
+        // Agregar restricción para que 'cantidad' sea >= 0
+        DB::statement('ALTER TABLE comanda_items ADD CONSTRAINT cantidad_positive CHECK (cantidad >= 0)');
+    } 
 
     public function down()
     {
