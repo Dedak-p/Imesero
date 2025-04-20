@@ -18,8 +18,9 @@ class CreateComandasTable extends Migration
                   ->constrained()
                   ->onDelete('set null');
             $table->boolean('anonimo')->default(false);
-            $table->enum('estado', ['borrador','abierta','cerrada','pagada'])
-                  ->default('borrador');
+            $table->foreignId('estado_comanda_id')
+                  ->constrained('estado_comandas')
+                  ->onDelete('restrict');
             $table->timestamps();
         });
     }

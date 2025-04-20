@@ -47,16 +47,15 @@ class ComandaItemController extends Controller
     
         $data['cantidad'] = $data['cantidad'] ?? 1;
 
-        $estadoItemBorrador = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id');
+        $estadoItemBorrador = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id') ?? 1;
         // ID estado 'borrador'
-        $borradorId = EstadoComanda::where('nombre','borrador')->value('id');
+        $borradorId = EstadoComanda::where('nombre','borrador')->value('id') ?? 1;
     
         // Recuperar o crear la comanda en borrador
         $comanda = Comanda::firstOrCreate([
             'mesa_id' => $mesa->id,
             'user_id' => auth()->id(),
             'anonimo' => auth()->guest(),
-        ], [
             'estado_comanda_id' => $borradorId,
         ]);
     
@@ -105,30 +104,35 @@ class ComandaItemController extends Controller
      * 4) Cliente confirma SU ítem:
      *    por confirmar → confirmado
      */
-    public function confirm(ComandaItem $item)
+    public function confirm(Comanda $comandaId)
     {
-        $inicialId   = EstadoPedidoItem::orderBy('orden')->value('id');
-        $confirmId   = EstadoPedidoItem::where('nombre','confirmado')->value('id');
-        $borradorCom = EstadoComanda::where('nombre','borrador')->value('id');
-        $pedidoCom   = EstadoComanda::where('nombre','pedido')->value('id');
+        $inicialId = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id') ?? 1; // Estado inicial
+        $confirmId = EstadoPedidoItem::where('nombre', 'confirmado')->value('id') ?? 2; // Estado confirmado
+        $borradorCom = EstadoComanda::where('nombre', 'borrador')->value('id') ?? 1; // Estado borrador
+        $pedidoCom = EstadoComanda::where('nombre', 'pedido')->value('id') ?? 2;
+        $comanda = Comanda::findOrFail($comandaId->id);
 
-        // Solo si está en el estado inicial
-        if ($item->estado_item_id !== $inicialId) {
+        // Filtrar los ítems que están en el estado inicial
+        $itemsToConfirm = $comanda->items()->where('estado_item_id', 1)->get();
+
+        if ($itemsToConfirm->isEmpty()) {
             return response()->json([
-                'message' => 'Este ítem no puede confirmarse.'
+                'message' => 'No hay ítems para confirmar.'
             ], 422);
         }
 
-        // Actualizo ítem
-        $item->update(['estado_item_id' => $confirmId]);
+        // Actualizar el estado de los ítems
+        foreach ($itemsToConfirm as $item) {
+            $item->update(['estado_item_id' => $confirmId]);
+        }
 
         // Si la comanda sigue en borrador, la paso a pedido
-        if ($item->comanda->estado_comanda_id === $borradorCom) {
-            $item->comanda->update(['estado_comanda_id' => $pedidoCom]);
+        if ($comanda->estado_comanda_id === $borradorCom) {
+            $comanda->update(['estado_comanda_id' => $pedidoCom]);
         }
 
         return response()->json(
-            $item->load('producto','estado')
+            $comanda->items()->with(['producto', 'estado'])->get()
         );
     }
 

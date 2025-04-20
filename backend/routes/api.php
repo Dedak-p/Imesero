@@ -56,11 +56,11 @@ Route::get('estado-comandas/{id}',     [EstadoComandaController::class,'show']);
 Route::post('mesas/{mesa}/items', [ComandaItemController::class,'store']);
 
 // Cliente confirma SU ítem (por confirmar → confirmado) y dispara comanda borrador → pedido
-Route::patch('comanda-items/{item}/confirm', [ComandaItemController::class,'confirm']);
+Route::patch('comanda-items/{comandaId}/confirm', [ComandaItemController::class,'confirm']);
 
 
 // Cliente puede ver sus ítems (opcional, si los necesita fuera de comanda)
-Route::get('comanda-items/{comandaItem}', [ComandaItemController::class,'show']);
+Route::get('comanda-items/{comandaId}', [ComandaItemController::class,'show']);
 
 // Rutas protegidas solo para admin
 Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
