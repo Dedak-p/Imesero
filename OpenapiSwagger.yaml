@@ -1,24 +1,26 @@
 openapi: 3.0.0
 info:
-  title: iMesero API (Cliente y Admin)
+  title: iMesero API (Clientee y Admin)
   version: "1.0.8"
 servers:
   - url: http://localhost:8000/api
     description: Development server
 
 tags:
-  - name: Common
+  - name: Comun
     description: Autenticación y usuario
-  - name: Client
+  - name: Cliente
     description: Operaciones de cliente (anónimos o autenticados)
   - name: Admin
     description: Operaciones de administrador
+  - name: Front
+    description:  Peticiones para generar un front dinamico.
 
 paths:
-  # Common
+  # Comun
   /login:
     post:
-      tags: [Common]
+      tags: [Comun]
       summary: Iniciar sesión
       requestBody:
         required: true
@@ -36,7 +38,7 @@ paths:
 
   /logout:
     post:
-      tags: [Common]
+      tags: [Comun]
       summary: Cerrar sesión
       security:
         - bearerAuth: []
@@ -46,7 +48,7 @@ paths:
 
   /user:
     get:
-      tags: [Common]
+      tags: [Comun]
       summary: Obtener usuario autenticado
       security:
         - bearerAuth: []
@@ -61,7 +63,7 @@ paths:
   # Mesas
   /mesas:
     get:
-      tags: [Client]
+      tags: [Comun]
       summary: Listar mesas
       responses:
         '200':
@@ -95,8 +97,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/mesaId'
     get:
-      tags: [Client]
-      summary: Detalle de mesa
+      tags: [Comun]
+      summary: Detalle de mesa si la mesa no esta ocupada, si la mesa esta opcuapada devueleve la comanda, su total y los items en ella 
       responses:
         '200':
           description: Mesa encontrada
@@ -135,7 +137,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/mesaId'
     post:
-      tags: [Client]
+      tags: [Cliente]
       summary: Añadir ítem a la comanda (crea/recupera comanda)
       requestBody:
         required: true
@@ -150,11 +152,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ComandaItemResponse'
+  /mesas/{mesaId}/confirm:
+    parameters:
+      - $ref: '#/components/parameters/mesaId'
+    patch:
+      tags: [Cliente]
+      summary: Cliente confirma los items de la comanda no confirmados a partir del id de mesa
+      responses:
+        '200':
+          description: Ítems confirmados
 
   # Categorías
   /categorias:
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Listar categorías
       responses:
         '200':
@@ -188,7 +199,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/categoriaId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Detalle de categoría
       responses:
         '200':
@@ -223,7 +234,7 @@ paths:
   # Productos
   /productos:
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Listar productos
       responses:
         '200':
@@ -253,7 +264,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/productoId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Detalle de producto
       responses:
         '200':
@@ -284,7 +295,7 @@ paths:
   # Comandas
   /comandas:
     get:
-      tags: [Client]
+      tags: [Admin]
       summary: Listar comandas del cliente
       responses:
         '200':
@@ -314,7 +325,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/comandaId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Detalle de comanda (con items y total)
       responses:
         '200':
@@ -346,7 +357,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/comandaId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Listar ítems de una comanda
       responses:
         '200':
@@ -359,21 +370,12 @@ paths:
                   $ref: '#/components/schemas/ComandaItemResponse'
 
   # Ítems de comanda
-  /comanda-items/{itemId}/confirm:
-    parameters:
-      - $ref: '#/components/parameters/itemId'
-    patch:
-      tags: [Client]
-      summary: Cliente confirma su ítem (por confirmar → confirmado)
-      responses:
-        '200':
-          description: Ítem confirmado
 
   /comanda-items/{itemId}:
     parameters:
       - $ref: '#/components/parameters/itemId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Obtener detalle de un ítem
       responses:
         '200':
@@ -404,7 +406,7 @@ paths:
   # Estados de ítems
   /estados-items:
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Listar estados de ítems
       responses:
         '200':
@@ -428,7 +430,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/estadoItemId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Detalle de estado de ítem
       responses:
         '200':
@@ -459,7 +461,7 @@ paths:
   # Estados de comanda
   /estado-comandas:
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Listar estados de comanda
       responses:
         '200':
@@ -469,7 +471,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/estadoComandaId'
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Detalle de estado de comanda
       responses:
         '200':
@@ -478,7 +480,7 @@ paths:
   # Métodos de pago
   /metodos-pago:
     get:
-      tags: [Client]
+      tags: [Front]
       summary: Listar métodos de pago
       responses:
         '200':

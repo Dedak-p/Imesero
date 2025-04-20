@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect } from "react";
-import { AppContext } from "../context/AppContext.jsx";
 import { useParams } from "react-router-dom";
 import Axios from "axios";
 import Header from "../components/Header";
@@ -84,4 +83,4 @@ const MenuPage = () => {
   );
 };
 
-export default Menu;
+export default MenuPage;
