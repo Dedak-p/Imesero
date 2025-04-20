@@ -27,7 +27,14 @@ class MesaController extends Controller
 
     public function show(Mesa $mesa)
     {
-        return response()->json($mesa->load('comandas'));
+        if ($mesa->ocupada) {
+            $comanda = $mesa->comandas()->whereNotIn('estado_comanda_id', [4])->latest()->first();
+            return response()->json([
+                'mesa'    => $mesa,
+                'comanda' => $comanda
+            ]);
+        }
+        return response()->json($mesa);
     }
 
     public function update(Request $request, Mesa $mesa)

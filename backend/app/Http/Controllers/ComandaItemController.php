@@ -20,7 +20,7 @@ class ComandaItemController extends Controller
         return response()->json(
             $comanda
                 ->items()
-                ->with(['producto','estado'])
+                ->with(['producto','estadoPedidoItem'])
                 ->get()
         );
     }
@@ -31,7 +31,7 @@ class ComandaItemController extends Controller
     public function show(ComandaItem $item)
     {
         return response()->json(
-            $item->load(['producto','estado','comanda'])
+            $item->load(['producto','estadoPedidoItem','comanda'])
         );
     }
 
@@ -44,59 +44,64 @@ class ComandaItemController extends Controller
             'producto_id' => 'required|exists:productos,id',
             'cantidad'    => 'nullable|integer|in:1,-1',
         ]);
-    
+
+        // Asignar cantidad por defecto si no se envía
         $data['cantidad'] = $data['cantidad'] ?? 1;
 
-        $estadoItemBorrador = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id') ?? 1;
-        // ID estado 'borrador'
-        $borradorId = EstadoComanda::where('nombre','borrador')->value('id') ?? 1;
-    
-        // Recuperar o crear la comanda en borrador
-        $comanda = Comanda::firstOrCreate([
-            'mesa_id' => $mesa->id,
-            'user_id' => auth()->id(),
-            'anonimo' => auth()->guest(),
-            'estado_comanda_id' => $borradorId,
-        ]);
-    
-        if ($comanda->wasRecentlyCreated) {
+        // Buscar una comanda activa para la misma mesa, usuario y anonimato.
+        // Si ya existe una comanda en borrador o pedida, se la reutiliza.
+        $comanda = Comanda::where('mesa_id', $mesa->id)
+            ->where('user_id', auth()->id())
+            ->where('anonimo', auth()->guest())
+            ->whereIn('estado_comanda_id', [1, 2, 3])
+            ->latest()
+            ->first();
+
+        // Si no se encuentra ninguna, se crea una nueva comanda en estado borrador
+        if (!$comanda) {
+            $comanda = Comanda::create([
+                'mesa_id'           => $mesa->id,
+                'user_id'           => auth()->id(),
+                'anonimo'           => auth()->guest(),
+                'estado_comanda_id' => 1,
+            ]);
             $mesa->update(['ocupada' => true]);
         }
-    
+
         $producto = Producto::findOrFail($data['producto_id']);
-    
-        // Sumar la cantidad si ya existe
-        $existingItem = $comanda
-            ->items()
+
+        // Buscar un item existente con el mismo producto y que esté en estado borrador
+        $existingDraftItem = $comanda->items()
             ->where('producto_id', $producto->id)
+            ->where('estado_item_id', 1)
             ->first();
-    
-        if ($existingItem) {
-            $existingItem->increment('cantidad', $data['cantidad']);
-            
-            // Eliminar el ítem si la cantidad es 0 o negativa
-            if ($existingItem->cantidad <= 0) {
-                $existingItem->delete();
+
+        if ($existingDraftItem) {
+            // Incrementar la cantidad en el item borrador existente
+            $existingDraftItem->increment('cantidad', $data['cantidad']);
+
+            // Si la cantidad llega a 0 o es negativa, se elimina el ítem
+            if ($existingDraftItem->cantidad <= 0) {
+                $existingDraftItem->delete();
                 return response()->json(null, 204);
             }
 
-            return response()->json($existingItem->fresh()->load('producto'), 200);
+            return response()->json($existingDraftItem->fresh()->load('producto'), 200);
         }
-        
-        // Si no existe, lo creo incluyendo el estado inicial
+
+        // Si no existe, se crea un nuevo ítem con estado borrador
         $item = $comanda->items()->create([
             'producto_id'     => $producto->id,
             'cantidad'        => $data['cantidad'],
             'precio_unitario' => $producto->precio,
-            'estado_item_id'  => $estadoItemBorrador,  // ← aquí
+            'estado_item_id'  => 1,
         ]);
-        
-        // Eliminar el ítem si la cantidad es 0 o negativa
+
         if ($item->cantidad <= 0) {
             $item->delete();
             return response()->json(null, 204);
         }
-        
+
         return response()->json($item->load('producto'), 201);
     }
 
@@ -104,13 +109,15 @@ class ComandaItemController extends Controller
      * 4) Cliente confirma SU ítem:
      *    por confirmar → confirmado
      */
-    public function confirm(Comanda $comandaId)
+    public function confirm(Mesa $mesa)
     {
-        $inicialId = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id') ?? 1; // Estado inicial
-        $confirmId = EstadoPedidoItem::where('nombre', 'confirmado')->value('id') ?? 2; // Estado confirmado
-        $borradorCom = EstadoComanda::where('nombre', 'borrador')->value('id') ?? 1; // Estado borrador
-        $pedidoCom = EstadoComanda::where('nombre', 'pedido')->value('id') ?? 2;
-        $comanda = Comanda::findOrFail($comandaId->id);
+        $comanda = Comanda::where('mesa_id', $mesa->id)->latest()->first();
+
+        if (!$comanda) {
+            return response()->json([
+                'message' => 'No hay comanda en esa mesa por confirmar.'
+            ], 422);
+        }
 
         // Filtrar los ítems que están en el estado inicial
         $itemsToConfirm = $comanda->items()->where('estado_item_id', 1)->get();
@@ -121,25 +128,50 @@ class ComandaItemController extends Controller
             ], 422);
         }
 
-        // Actualizar el estado de los ítems
+        // Actualizar el estado de los ítems a "confirmado"
         foreach ($itemsToConfirm as $item) {
-            $item->update(['estado_item_id' => $confirmId]);
+            $item->update(['estado_item_id' => 2]);
         }
 
         // Si la comanda sigue en borrador, la paso a pedido
-        if ($comanda->estado_comanda_id === $borradorCom) {
-            $comanda->update(['estado_comanda_id' => $pedidoCom]);
+        if ($comanda->estado_comanda_id === 1) {
+            $comanda->update(['estado_comanda_id' => 2]);
         }
 
-        return response()->json(
-            $comanda->items()->with(['producto', 'estado'])->get()
-        );
+        // Obtener todos los items actualizados
+        $items = $comanda->items()->with(['producto', 'estadoPedidoItem'])->get();
+
+        // Agrupar ítems con el mismo producto
+        $groupedItems = $items->groupBy('producto_id');
+
+        foreach ($groupedItems as $productoId => $groupItems) {
+            // Seleccionar el primer registro del grupo como el principal
+            $mainItem = $groupItems->first(); ;
+            $totalCantidad = $groupItems->sum('cantidad');
+
+            // Actualiza el registro principal con la cantidad total
+            if ($mainItem->cantidad != $totalCantidad) {
+                $mainItem->update(['cantidad' => $totalCantidad]);
+            }
+
+            // Elimina los registros duplicados (los demás en el grupo)
+            $duplicates = $groupItems->slice(1);
+            foreach ($duplicates as $duplicateItem) {
+                $duplicateItem->delete();
+            }
+        }
+
+        // Obtener los ítems actualizados tras la fusión
+        $updatedItems = $comanda->items()->with(['producto', 'estadoPedidoItem'])->get();
+
+        return response()->json($updatedItems);
     }
 
     /**
      * 5) Admin avanza el estado de un ítem:
      *    cocina → camino → entregado…
      */
+
     public function update(Request $request, ComandaItem $comandaItem)
     {
         $data = $request->validate([
@@ -150,7 +182,7 @@ class ComandaItemController extends Controller
 
         $item = $comandaItem->fresh(['producto', 'estado']);
 
-        return response()->json($comandaItem);
+        return response()->json($item);
     }
 
     /**

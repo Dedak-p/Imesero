@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Comanda extends Model
 {
     // Asegúrate de que cargas siempre los items para el cálculo
-    protected $with    = ['items','estadoComanda'];
-    protected $appends = ['total','estado_nombre'];
+    protected $with    = ['items'];
+    protected $appends = ['total','estado'];
 
     protected $fillable = [
         'mesa_id',
@@ -57,7 +57,7 @@ class Comanda extends Model
         return $this->items->sum(fn($i)=>$i->cantidad*(float)$i->precio_unitario);
     }
 
-    public function getEstadoNombreAttribute(): string
+    public function getEstadoAttribute(): string
     {
         return $this->estadoComanda->nombre;
     }

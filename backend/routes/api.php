@@ -56,7 +56,7 @@ Route::get('estado-comandas/{id}',     [EstadoComandaController::class,'show']);
 Route::post('mesas/{mesa}/items', [ComandaItemController::class,'store']);
 
 // Cliente confirma SU ítem (por confirmar → confirmado) y dispara comanda borrador → pedido
-Route::patch('comanda-items/{comandaId}/confirm', [ComandaItemController::class,'confirm']);
+Route::patch('mesas/{mesa}/confirm', [ComandaItemController::class,'confirm']);
 
 
 // Cliente puede ver sus ítems (opcional, si los necesita fuera de comanda)
@@ -68,7 +68,7 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     Route::apiResource('mesas',         MesaController::class)->only(['store','update','destroy']);
     Route::apiResource('categorias',    CategoriaController::class)->only(['store','update','destroy']);
     Route::apiResource('productos',     ProductoController::class)->only(['store','update','destroy']);
-    Route::apiResource('comandas',      ComandaController::class)->only(['store','update','destroy']);
+    Route::apiResource('comandas',      ComandaController::class)->only(['index','store','update','destroy']);
     Route::apiResource('estados-items', EstadoPedidoItemController::class)->only(['store','update','destroy']);
 
     // Gestión de comanda-items: avanzar estados (cocina, camino, entregado…) y eliminar
