@@ -7,9 +7,9 @@ import useApiCall from "../hooks/useApiCall";
 
 const MenuPage = () => {
   // Menú variable de estado = array vacío por defecto
-  const { data: menu, loading, error, refetch } = useApiCall('/productos');
+  const { data: menu, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/productos`);
 
-  console.log(menu);
+  console.log("El menu es:" + menu);
   const handleAddToCart = (producto) => {
     // Obtenemos el carrito almacenado en el localStorage
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
@@ -39,28 +39,28 @@ const MenuPage = () => {
         {/* Iteramos dentro de cada categoria*/}
         <SeccionTitulo titulo="Primeros" />
         {menu
-          .filter(item => item.categoria === "Primeros")
+          .filter(item => item.categoria_id === 1)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
         <SeccionTitulo titulo="Segundos" />
         {menu
-          .filter(item => item.categoria === "Segundos")
+          .filter(item => item.categoria_id === 2)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
         <SeccionTitulo titulo="Postres" />
         {menu
-          .filter(item => item.categoria === "Postres")
+          .filter(item => item.categoria_id === 4)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
         <SeccionTitulo titulo="Bebidas" />
         {menu
-          .filter(item => item.categoria === "Bebidas")
+          .filter(item => item.categoria_id=== 3)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}

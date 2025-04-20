@@ -9,7 +9,7 @@ export default function AppProvider({ children }) {
 
     async function getUser() {
 
-        const response = await fetch('http://localhost:8000/api/user', {
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/user`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

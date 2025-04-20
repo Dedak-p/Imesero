@@ -10,14 +10,14 @@ import useApiCall from "../hooks/useApiCall.js";
 function Home() {
     const navigate = useNavigate();
     const { user, setUser, token, setToken } = useContext(AppContext);
-    const { data: mesas = [], loading, error } = useApiCall("/mesas");
+    const { data: mesas = [], loading, error } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/mesas`);
     
     // Función para cerrar sesión
     async function handleLogout(e) {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:8000/api/logout', {
+            const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/logout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
