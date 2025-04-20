@@ -20,6 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        'http://192.168.1.115:5173',
         'http://localhost:8000',     // tu API
         'http://localhost:5173',     // Frontend
         'https://editor.swagger.io',

@@ -29,7 +29,7 @@ function CrearCuenta() {
         setErrorMessage('');
 
         try {
-            const response = await fetch('http://localhost:8000/api/register', {
+            const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/register` , {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

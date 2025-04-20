@@ -1,78 +1,174 @@
-import { useEffect, useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import SeccionTitulo from "../components/SeccionTitulo";
-import Item from "../components/Item";
-import { AppContext } from "../context/AppContext.jsx";
-import useApiCall from "../hooks/useApiCall";
+import ItemCarrito from "../components/ItemCarrito";
+import Axios from "axios";
 
 const CarritoPage = () => {
-  const { token } = useContext(AppContext);
-  const comandaId = localStorage.getItem("comandaId");
+  const { mesaId } = useContext(AppContext);
+  const [items, setItems] = useState([]);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Uso de useApiCall para obtener los items de la comanda
-  const {
-    data: items,
-    loading,
-    error,
-    refetch
-  } = useApiCall(comandaId ? `/comandas/${comandaId}/items`:null,"get",null, [comandaId] );
-
-  const { data: comanda } = useApiCall(comandaId ? `/comandas/${comandaId}` : null, "get", null, [comandaId]);
-  
-  console.log(comanda)
-  // Re-refresca al montar por si cambió externamente
   useEffect(() => {
-    if (comandaId) refetch();
-  }, [comandaId]);
+    if (!mesaId) {
+      setError("No se ha asignado un ID de mesa.");
+      return;
+    }
 
-  const total = items.reduce(
-    (sum, it) => sum + it.cantidad * parseFloat(it.precio_unitario),
-    0
-  );
+    const fetchComandaAndItems = async () => {
+      try {
+        const mesaResponse = await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}`);
+        if (!mesaResponse.ok) throw new Error("No se pudo obtener la mesa");
+        const mesaData = await mesaResponse.json();
+
+        if (!mesaData.comandas || mesaData.comandas.length === 0) {
+          setError("La mesa no tiene una comanda asociada");
+          return;
+        }
+
+        const comandaId = mesaData.comandas[0].id;
+
+        const itemsResponse = await fetch(`http://${window.location.hostname}:8000/api/comandas/${comandaId}/items`);
+        if (!itemsResponse.ok) throw new Error("No se pudieron obtener los ítems de la comanda");
+        const itemsData = await itemsResponse.json();
+
+        const itemsAgrupados = itemsData.reduce((acc, item) => {
+          const existingItem = acc.find((i) => i.producto.id === item.producto.id);
+          if (existingItem) {
+            existingItem.cantidad += item.cantidad;
+          } else {
+            acc.push({ ...item });
+          }
+          return acc;
+        }, []);
+
+        setItems(itemsAgrupados);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchComandaAndItems();
+  }, [mesaId]);
+
+  // Añadir producto desde backend
+  const añadirCarrito = async (producto) => {
+    try {
+      const response = await Axios.post(
+        `${window.location.protocol}//${window.location.hostname}:8000/api/mesas/${mesaId}/items`,
+        {
+          producto_id: producto.id,
+          cantidad: 1,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Producto añadido:", response.data);
+      añadirItemFront(producto);
+    } catch (error) {
+      console.error("Error al añadir producto:", error.response?.data || error.message);
+    }
+  };
+
+  // Eliminar producto desde backend
+  const eliminarCarrito = async (productoId) => {
+    try {
+      const response = await Axios.post(
+        `${window.location.protocol}//${window.location.hostname}:8000/api/mesas/${mesaId}/items`,
+        {
+          producto_id: productoId,
+          cantidad: -1,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Producto eliminado:", response.data);
+      eliminarItemFront(productoId);
+    } catch (error) {
+      console.error("Error al eliminar producto:", error.response?.data || error.message);
+    }
+  };
+
+  const añadirItemFront = (producto) => {
+    setItems((prevItems) => {
+      const updated = prevItems.map((item) =>
+        item.producto.id === producto.id
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      );
+      return updated;
+    });
+  };
+
+  const eliminarItemFront = (productoId) => {
+    setItems((prevItems) => {
+      const updated = prevItems
+        .map((item) =>
+          item.producto.id === productoId
+            ? { ...item, cantidad: item.cantidad - 1 }
+            : item
+        )
+        .filter((item) => item.cantidad > 0); // Eliminar si la cantidad llega a 0
+      return updated;
+    });
+  };
+
+  const calcularTotal = () =>
+    items.reduce((total, item) => total + item.producto.precio * item.cantidad, 0);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <>
       <Header />
-      <div className="p-4 mt-20 flex flex-col items-center">
-        <SeccionTitulo titulo="Tu carrito" />
-
-        {loading ? (
-          <p>Cargando artículos…</p>
-        ) : error ? (
-          <p className="text-red-600">Error al cargar el carrito.</p>
-        ) : items.length === 0 ? (
-          <p>No hay productos en el carrito.</p>
-        ) : (
-          <div className="w-full max-w-xl">
-            {items.map((it) => (
-              <Item key={it.id} producto={it.producto} cantidad={it.cantidad} />
-            ))}
-
-            <div className="mt-4 flex justify-between font-semibold text-lg">
-              <span>Total:</span>
-              <span>{total.toFixed(2)} €</span>
-            </div>
-            
-          {comanda.estado_comanda_id === 1 && (
-            <button
-              onClick={handleConfirm}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg"
-            >
-              CONFIRMAR PEDIDO
-            </button>
+      <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white bg-[#012340]">
+        <SeccionTitulo titulo="Este es tu carrito" />
+        <div className="mt-4">
+          {items.length > 0 ? (
+            items.map((item) => {
+              const producto = item.producto;
+              return producto ? (
+                <ItemCarrito
+                  key={producto.id}
+                  producto={producto}
+                  cantidad={item.cantidad}
+                  onAdd={() => añadirCarrito(producto)}
+                  onRemove={() => eliminarCarrito(producto.id)}
+                />
+              ) : (
+                <p key={item.producto_id}>Cargando producto...</p>
+              );
+            })
+          ) : (
+            <p>No hay productos en el carrito.</p>
           )}
+        </div>
 
-          {comanda.estado_comanda_id === 2 && (
-            <button
-              onClick={handlePay}
-              className="w-full bg-green-600 text-white py-2 rounded-lg"
-            >
-              PAGAR
-            </button>
-          )}
+        <SeccionTitulo titulo={`Precio total: ${calcularTotal().toFixed(2)} €`} />
 
-          </div>
-        )}
+        <div className="mt-6">
+          <button
+            onClick={() => navigate("/pagar")}
+            className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-120 px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
+          >
+            Pagar ahora
+          </button>
+        </div>
       </div>
     </>
   );
