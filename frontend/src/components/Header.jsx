@@ -1,27 +1,75 @@
 import { Link } from "react-router-dom";
 //import '../styles/Header.css';
-
+import { useNavigate } from "react-router-dom";
 import Flecha from "../assets/flecha.svg";
 import Usuario from "../assets/usuario.svg";
-
+import Caja from "../assets/caja.svg"
 import useApiCall from "../hooks/useApiCall";
 // import CarritoDrop from "./CarritoDrop";
 
 const Header = () => {
+  const navigate = useNavigate();
+  function changeLanguage(ext) {
+    const currentUrl = window.location.href;
+    const baseUrl = currentUrl.split("?")[0];
+    window.location.href = `${baseUrl}?lang=${ext}`;
+
+  }
+
+
   const { data: categorias, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/categorias`);
   return (
     <header className="fixed top-0 left-0  grid grid-cols-2 grid-rows-2 p-4  bg-blue-950 shadow-md  w-full">
 
 
-      <button className=" p-2 rounded-full justify-items-start">
+      <button className=" p-2 rounded-full justify-items-start"
+        onClick={() => navigate(-1)}>
         <img src={Flecha} alt="Icono personalizado" className="w-10 h-7" />
+
       </button>
 
-      <div className="flex items-center justify-end gap-2">
-        <button className=" ">
+      <div className="flex items-center justify-end gap-2 text-white">
+        <span className="relative group cursor-pointer">
+          <span className="hover:text-blue-500" onClick={() => changeLanguage('es')}>ES</span>
+          <span className="absolute left-0 bottom-full mb-1 w-max px-2 py-1 text-sm bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              transform: 'translate(-25%, 70px)', // Ajusta el desplazamiento hacia abajo
+            }}>
+            Español
+          </span>
+        </span>
+        <span className="cursor-pointer">|</span>
+        <span className="relative group cursor-pointer">
+          <span className="hover:text-blue-500" onClick={() => changeLanguage('ca')} >CA</span>
+          <span className="absolute left-0 bottom-full mb-1 w-max px-2 py-1 text-sm bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              transform: 'translate(-25%, 70px)', // Ajusta el desplazamiento hacia abajo
+            }}>
+            Català
+          </span>
+        </span>
+        <span className="cursor-pointer">|</span>
+        <span className="relative group cursor-pointer">
+          <span className="hover:text-blue-500" onClick={() => changeLanguage('en')}>EN</span>
+          <span className="absolute left-0 bottom-full mb-1 w-max px-2 py-1 text-sm bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              transform: 'translate(-25%, 70px)', // Ajusta el desplazamiento hacia abajo
+            }}
+
+          >
+            English
+          </span>
+        </span>
+
+        <button className="cursor-pointer "
+        onClick={() => navigate("/usuario")}>
           <img src={Usuario} alt="Icono personalizado" className="w-10 h-7" />
         </button>
         {/* <CarritoDrop /> */}
+        <button className="cursor-pointer "
+        onClick={() => navigate("/carrito")}>
+          <img src={Caja} alt="Icono personalizado" className="w-10 h-7" />
+        </button>
       </div>
 
 

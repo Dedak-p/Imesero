@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { AppContext } from "../context/AppContext.jsx";
+import { useParams } from "react-router-dom";
 import Axios from "axios";
 import Header from "../components/Header";
 import Item from '../components/Item';
@@ -6,24 +8,36 @@ import SeccionTitulo from '../components/SeccionTitulo';
 import useApiCall from "../hooks/useApiCall";
 
 const MenuPage = () => {
+  const { mesaId, setMesaId } = useContext(AppContext); // Primero obtener setMesaId y mesaId desde el contexto
+  const { mesaId: mesaObtenida } = useParams(); // ← Esto toma el "3" de /menu/3
+  
+  // Cuando el componente se monta, se setea el valor de mesaId
+  useEffect(() => {
+    if (mesaObtenida) {
+      setMesaId(mesaObtenida); // Seteamos el nuevo id de la mesa
+    }
+  }, [mesaObtenida, setMesaId]); // Solo se ejecutará si cambia mesaObtenida
+
+  console.log(mesaId);
   // Menú variable de estado = array vacío por defecto
   const { data: menu, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/productos`);
 
   console.log("El menu es:" + menu);
-  const handleAddToCart = (producto) => {
-    // Obtenemos el carrito almacenado en el localStorage
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  
-    // Verificamos si el producto ya está en el carrito
-    const productoExistente = carrito.some(item => item.id === producto.id);
-  
-    if (!productoExistente) {
-      // Si el producto no está en el carrito, lo agregamos
-      carrito.push(producto);
-      // Actualizamos el carrito en el localStorage
-      localStorage.setItem("carrito", JSON.stringify(carrito));
-    } else {
-      console.log("Este producto ya está en el carrito.");
+  const handleAddToCart = async (producto) => {
+    try {
+      const response = await Axios.post(`${window.location.protocol}//${window.location.hostname}:8000/api/mesas/${mesaId}/items`, {
+        producto_id: producto.id,
+        cantidad: 1,
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      console.log("Producto añadido a la comanda:", response.data);
+    } catch (error) {
+      console.error("Error al añadir producto:", error.response?.data || error.message);
     }
   };
   return (
@@ -60,7 +74,7 @@ const MenuPage = () => {
 
         <SeccionTitulo titulo="Bebidas" />
         {menu
-          .filter(item => item.categoria_id=== 3)
+          .filter(item => item.categoria_id === 3)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
