@@ -75,28 +75,28 @@ const MenuPage = () => {
 
 
         {/* Iteramos dentro de cada categoria*/}
-        <SeccionTitulo titulo="Primeros" />
+        <SeccionTitulo titulo="Primeros" slug="primeros"/>
         {menu
           .filter(item => item.categoria_id === 1)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
-        <SeccionTitulo titulo="Segundos" />
+        <SeccionTitulo titulo="Segundos" slug="segundos"/>
         {menu
           .filter(item => item.categoria_id === 2)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
-        <SeccionTitulo titulo="Postres" />
+        <SeccionTitulo titulo="Postres" slug="postres"/>
         {menu
           .filter(item => item.categoria_id === 4)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
-        <SeccionTitulo titulo="Bebidas" />
+        <SeccionTitulo titulo="Bebidas" slug="bebidas"/>
         {menu
           .filter(item => item.categoria_id === 3)
           .map(item => (

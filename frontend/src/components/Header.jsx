@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 //import '../styles/Header.css';
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext"; // Adjust the path as needed
 import Flecha from "../assets/flecha.svg";
 import Usuario from "../assets/usuario.svg";
 import Caja from "../assets/caja.svg"
@@ -16,6 +18,7 @@ const Header = () => {
 
   }
 
+    const { mesaId } = useContext(AppContext);
 
   const { data: categorias, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/categorias`);
   return (
@@ -89,7 +92,7 @@ const Header = () => {
             return (
               <a
                 key={cat.id}
-                href={`#${slug}`}
+                href={`/menu/${mesaId}#${slug}`}
                 className="hover:text-gray-300 whitespace-nowrap"
               >
                 {cat.nombre.toUpperCase()}
