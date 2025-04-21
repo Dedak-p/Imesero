@@ -1,5 +1,6 @@
 <?php
 
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,7 @@ Route::get('productos/{producto}',     [ProductoController::class,'show']);
 Route::get('comandas',                 [ComandaController::class,'index']);
 Route::get('comandas/{comanda}',       [ComandaController::class,'show']);
 Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
+Route::middleware('auth:sanctum')->get('comandas-usuario', [ComandaController::class, 'comandasUsuario']);
 
 Route::get('estados-items',            [EstadoPedidoItemController::class,'index']);
 Route::get('estados-items/{estadoPedidoItem}', [EstadoPedidoItemController::class,'show']);
@@ -54,6 +56,9 @@ Route::get('estado-comandas/{id}',     [EstadoComandaController::class,'show']);
 
 // Flujo Cliente: añadir primer ítem (crea/recupera comanda y ocupa mesa)
 Route::post('mesas/{mesa}/items', [ComandaItemController::class,'store']);
+//Autenticado
+Route::middleware('auth:sanctum')->post('/mesas/{mesa}/itemsAuth', [ComandaItemController::class, 'storeAuth']);
+
 
 // Cliente confirma SU ítem (por confirmar → confirmado) y dispara comanda borrador → pedido
 Route::patch('mesas/{mesa}/confirm', [ComandaItemController::class,'confirm']);
@@ -68,7 +73,7 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     Route::apiResource('mesas',         MesaController::class)->only(['store','update','destroy']);
     Route::apiResource('categorias',    CategoriaController::class)->only(['store','update','destroy']);
     Route::apiResource('productos',     ProductoController::class)->only(['store','update','destroy']);
-    Route::apiResource('comandas',      ComandaController::class)->only(['index','store','update','destroy']);
+    //Route::apiResource('comandas',      ComandaController::class)->only(['index','store','update','destroy']);
     Route::apiResource('estados-items', EstadoPedidoItemController::class)->only(['store','update','destroy']);
 
     // Gestión de comanda-items: avanzar estados (cocina, camino, entregado…) y eliminar

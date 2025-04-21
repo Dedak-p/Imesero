@@ -10,7 +10,7 @@ import { AppContext } from "../context/AppContext.jsx";
 const MenuPage = () => {
   const { mesaId, setMesaId } = useContext(AppContext); // Primero obtener setMesaId y mesaId desde el contexto
   const { mesaId: mesaObtenida } = useParams(); // ← Esto toma el "3" de /menu/3
-  
+
   // Cuando el componente se monta, se setea el valor de mesaId
   useEffect(() => {
     if (mesaObtenida) {
@@ -25,21 +25,45 @@ const MenuPage = () => {
   console.log("El menu es:" + menu);
   const handleAddToCart = async (producto) => {
     try {
-      const response = await Axios.post(`${window.location.protocol}//${window.location.hostname}:8000/api/mesas/${mesaId}/items`, {
-        producto_id: producto.id,
-        cantidad: 1,
-      }, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
+      const token = localStorage.getItem('token'); // Obtener el token del localStorage
+      const isAuthenticated = !!token; // Verificar si el usuario está autenticado
+  
+      // Construir headers
+      const headers = {
+        "Content-Type": "application/json",
+      };
+  
+      // Si el token está presente, agregarlo a las cabeceras
+      if (isAuthenticated) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+  
+      // Elegir el endpoint según autenticación
+      const endpoint = isAuthenticated
+        ? `/api/mesas/${mesaId}/itemsAuth`
+        : `/api/mesas/${mesaId}/items`;
+  
+      const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
+  
+      // Realizar la solicitud POST
+      const response = await Axios.post(
+        url,
+        {
+          producto_id: producto.id,
+          cantidad: 1,
+        },
+        {
+          withCredentials: true, // Si usas cookies, mantenlo
+          headers: headers,
         }
-      });
-
+      );
+  
       console.log("Producto añadido a la comanda:", response.data);
     } catch (error) {
       console.error("Error al añadir producto:", error.response?.data || error.message);
     }
   };
+  
   return (
     <>
       <Header />

@@ -22,7 +22,7 @@ const Header = () => {
     <header className="fixed top-0 left-0  grid grid-cols-2 grid-rows-2 p-4  bg-blue-950 shadow-md  w-full">
 
 
-      <button className=" p-2 rounded-full justify-items-start"
+      <button className=" p-2 rounded-full justify-items-start cursor-pointer"
         onClick={() => navigate(-1)}>
         <img src={Flecha} alt="Icono personalizado" className="w-10 h-7" />
 

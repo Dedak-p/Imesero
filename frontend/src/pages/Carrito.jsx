@@ -24,12 +24,12 @@ const CarritoPage = () => {
         if (!mesaResponse.ok) throw new Error("No se pudo obtener la mesa");
         const mesaData = await mesaResponse.json();
 
-        if (!mesaData.comandas || mesaData.comandas.length === 0) {
+        if (!mesaData.comanda.id) {
           setError("La mesa no tiene una comanda asociada");
           return;
         }
 
-        const comandaId = mesaData.comandas[0].id;
+        const comandaId = mesaData.comanda.id;
 
         const itemsResponse = await fetch(`http://${window.location.hostname}:8000/api/comandas/${comandaId}/items`);
         if (!itemsResponse.ok) throw new Error("No se pudieron obtener los ítems de la comanda");
@@ -57,22 +57,40 @@ const CarritoPage = () => {
   // Añadir producto desde backend
   const añadirCarrito = async (producto) => {
     try {
+      const token = localStorage.getItem('token'); // Obtener el token del localStorage
+      const isAuthenticated = !!token; // Verificar si el usuario está autenticado
+  
+      // Construir headers
+      const headers = {
+        "Content-Type": "application/json",
+      };
+  
+      // Si el token está presente, agregarlo a las cabeceras
+      if (isAuthenticated) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+  
+      // Elegir el endpoint según autenticación
+      const endpoint = isAuthenticated
+        ? `/api/mesas/${mesaId}/itemsAuth`
+        : `/api/mesas/${mesaId}/items`;
+  
+      const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
+  
+      // Realizar la solicitud POST
       const response = await Axios.post(
-        `${window.location.protocol}//${window.location.hostname}:8000/api/mesas/${mesaId}/items`,
+        url,
         {
           producto_id: producto.id,
           cantidad: 1,
         },
         {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          withCredentials: true, // Si usas cookies, mantenlo
+          headers: headers,
         }
       );
-
-      console.log("Producto añadido:", response.data);
       añadirItemFront(producto);
+      console.log("Producto añadido a la comanda:", response.data);
     } catch (error) {
       console.error("Error al añadir producto:", error.response?.data || error.message);
     }
@@ -121,7 +139,7 @@ const CarritoPage = () => {
             ? { ...item, cantidad: item.cantidad - 1 }
             : item
         )
-        .filter((item) => item.cantidad > 0); // Eliminar si la cantidad llega a 0
+        .filter((item) => item.cantidad > 0);
       return updated;
     });
   };
@@ -166,7 +184,7 @@ const CarritoPage = () => {
             onClick={() => navigate("/pagar")}
             className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-120 px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
           >
-            Pagar ahora
+            Confirmar Comanda
           </button>
         </div>
       </div>
