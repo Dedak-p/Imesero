@@ -26,6 +26,22 @@ class ComandaController extends Controller
         return response()->json($comandas);
     }
 
+
+    //Función que obtiene las comandas de un usuario 
+    public function comandasUsuario(Request $request)
+{
+    $user = $request->user(); // Usuario autenticado
+
+    $comandas = Comanda::with([
+        'mesa',
+        'items.producto',
+        'items.estado',
+        'estadoComanda'
+    ])->where('user_id', $user->id)->get();
+
+    return response()->json($comandas);
+}
+
     /**
      * Crear una nueva comanda en estado “borrador” y ocupar la mesa.
      */

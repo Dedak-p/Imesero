@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import SeccionTitulo from "../components/SeccionTitulo";
 import ItemCarrito from "../components/ItemCarrito";
+
 import Axios from "axios";
 
 const CarritoPage = () => {
@@ -11,7 +12,7 @@ const CarritoPage = () => {
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  const token = localStorage.getItem('token'); 
   useEffect(() => {
     if (!mesaId) {
       setError("No se ha asignado un ID de mesa.");
@@ -57,26 +58,26 @@ const CarritoPage = () => {
   // Añadir producto desde backend
   const añadirCarrito = async (producto) => {
     try {
-      const token = localStorage.getItem('token'); // Obtener el token del localStorage
+
       const isAuthenticated = !!token; // Verificar si el usuario está autenticado
-  
+
       // Construir headers
       const headers = {
         "Content-Type": "application/json",
       };
-  
+
       // Si el token está presente, agregarlo a las cabeceras
       if (isAuthenticated) {
         headers["Authorization"] = `Bearer ${token}`;
       }
-  
+
       // Elegir el endpoint según autenticación
       const endpoint = isAuthenticated
         ? `/api/mesas/${mesaId}/itemsAuth`
         : `/api/mesas/${mesaId}/items`;
-  
+
       const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
-  
+
       // Realizar la solicitud POST
       const response = await Axios.post(
         url,
@@ -151,6 +152,31 @@ const CarritoPage = () => {
     return <div>{error}</div>;
   }
 
+
+  //Función que maneja la confirmación de pedidos 
+  const manejarConfirmacion = async () => {
+    try {
+
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}/confirm`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+        }),
+      });
+
+      console.log("Comanda confirmada");
+    } catch (error) {
+      console.error("Error al confirmar comanda:", error);
+    }
+  };
+
   return (
     <>
       <Header />
@@ -181,13 +207,16 @@ const CarritoPage = () => {
 
         <div className="mt-6">
           <button
-            onClick={() => navigate("/pagar")}
-            className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-120 px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
+           onClick={async () => {
+            await manejarConfirmacion();
+            navigate("/pagar");
+          }}
+          className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-120 px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
           >
-            Confirmar Comanda
-          </button>
-        </div>
+          Confirmar Comanda
+        </button>
       </div>
+    </div >
     </>
   );
 };

@@ -8,6 +8,7 @@ import useApiCall from "../hooks/useApiCall.js";
 
 
 function Home() {
+    localStorage.clear();
     const navigate = useNavigate();
     const { user, setUser, token, setToken } = useContext(AppContext);
     const { data: mesas = [], loading, error } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/mesas`);
