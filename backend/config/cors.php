@@ -21,6 +21,8 @@ return [
 
     'allowed_origins' => [
         'http://192.168.1.115:5173',
+        'http://192.168.1.116:5173',
+        'http://192.168.1.115:8000',
         'http://localhost:8000',     // tu API
         'http://localhost:5173',     // Frontend
         'https://editor.swagger.io',
