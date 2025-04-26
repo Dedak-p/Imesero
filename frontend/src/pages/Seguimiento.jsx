@@ -9,7 +9,8 @@ import Axios from "axios";
 const SeguimientoPage = () => {
   const { mesaId, statusComand, setStatusComand } = useContext(AppContext);
   const [error, setError] = useState(null);
-  
+  const { lang } = useContext(AppContext);
+
 
   useEffect(() => {
     if (!mesaId) {
@@ -27,10 +28,10 @@ const SeguimientoPage = () => {
           setError("La mesa no tiene una comanda asociada");
           return;
         }
-        
+
         console.log("Datos de la mesa:", mesaData.comanda.estado_comanda_id);
         setStatusComand(mesaData.comanda.status_comanda_id);
-        
+
       } catch (error) {
         setError(error.message);
       }
@@ -40,20 +41,43 @@ const SeguimientoPage = () => {
 
   }, [mesaId, setStatusComand]);
 
- 
+
 
   if (error) {
     return <div>{error}</div>;
   }
 
 
+  const translations = {
+    es: {
+      titulo: "Seguimiento de tu pedido",
+      pagado: "Pagado",
+      preparandose: "Preparándose",
+      enCamino: "En camino",
+      servido: "Servido",
+    },
+    en: {
+      titulo: "Order Tracking",
+      pagado: "Paid",
+      preparandose: "Preparing",
+      enCamino: "On the way",
+      servido: "Served",
+    },
+    ca: {
+      titulo: "Seguiment de la teva comanda",
+      pagado: "Pagat",
+      preparandose: "Preparant-se",
+      enCamino: "En camí",
+      servido: "Servit",
+    },
+  };
 
 
   return (
     <>
       <Header />
       <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white bg-[#012340]">
-        <SeccionTitulo titulo="Seguimiento de tu pedido" />
+        <SeccionTitulo titulo={translations[lang]?.titulo || "Seguimiento de tu pedido"} />
 
         <div className="flex flex-row justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto  border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C]">
           {/* Columna A */}
@@ -83,14 +107,18 @@ const SeguimientoPage = () => {
               {statusComand === 4 && (
                 <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
               )}
-              <span className="relative text-lg font-bold">Pagado</span>
+              <span className="relative text-lg font-bold">
+                {translations[lang]?.pagado || "Pagado"}
+              </span>
             </div>
 
             <div className="relative h-15 mt-10 flex items-center justify-center">
               {statusComand === 5 && (
                 <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
               )}
-              <span className="relative text-lg font-bold">Preparandose</span>
+              <span className="relative text-lg font-bold">
+                {translations[lang]?.preparandose || "Preparándose"}
+              </span>
             </div>
 
             {/* Otra palabra fija */}
@@ -98,7 +126,9 @@ const SeguimientoPage = () => {
               {statusComand === 6 && (
                 <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
               )}
-              <span className="relative text-lg font-bold">En camino</span>
+              <span className="relative text-lg font-bold">
+                {translations[lang]?.enCamino || "En camino"}
+              </span>
             </div>
 
             {/* Otra palabra fija */}
@@ -106,7 +136,9 @@ const SeguimientoPage = () => {
               {statusComand === 7 && (
                 <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
               )}
-              <span className="relative text-lg font-bold">Servido</span>
+              <span className="relative text-lg font-bold">
+                {translations[lang]?.servido || "Servido"}
+              </span>
             </div>
 
           </div>
