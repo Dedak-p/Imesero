@@ -7,6 +7,7 @@ import { AppContext } from "../context/AppContext";
 
 const PagarPage = () => {
     const { mesaId } = useContext(AppContext);
+    const { setStatusComand } = useContext(AppContext);
     const [itemsConfirmados, setItemsConfirmados] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -29,6 +30,7 @@ const PagarPage = () => {
                 }
 
                 const comandaId = mesaData.comanda.id;
+                
 
                 const itemsResponse = await fetch(`http://${window.location.hostname}:8000/api/comandas/${comandaId}/items`);
                 if (!itemsResponse.ok) throw new Error("No se pudieron obtener los ítems de la comanda");
@@ -68,6 +70,24 @@ const PagarPage = () => {
         );
     }
 
+
+    //Función que maneja la confirmación de pedidos 
+    const pagarComanda = async () => {
+
+        try {
+
+            // TODO: Cambiar el endpoint a uno que maneje el pago
+
+            // Actualiza el status de la comanda en el contexto
+            setStatusComand(4); // Por ejemplo, 4 para "Pagado" //FIXME: Una vez pagado, se debe actualiar "statusComand"  con setStatusComand(mesaData.comanda.status_comanda_id);
+
+
+
+        } catch (error) {
+
+        }
+    };
+
     return (
         <>
             <Header />
@@ -91,7 +111,11 @@ const PagarPage = () => {
                 <SeccionTitulo titulo={`Total a pagar: ${calcularTotal().toFixed(2)} €`} />
 
                 <button
-                    onClick={() => navigate("/pago")}
+
+                    onClick={async () => {
+                        await pagarComanda();
+                        navigate("/pagar");
+                    }}
                     className="mt-8 bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-110 px-10"
                 >
                     Proceder al Pago

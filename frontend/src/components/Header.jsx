@@ -6,11 +6,14 @@ import { AppContext } from "../context/AppContext"; // Adjust the path as needed
 import Flecha from "../assets/flecha.svg";
 import Usuario from "../assets/usuario.svg";
 import Caja from "../assets/caja.svg"
+import Seguimiento from "../assets/seguimiento.svg"
 import useApiCall from "../hooks/useApiCall";
 // import CarritoDrop from "./CarritoDrop";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { statusComand } = useContext(AppContext);
+
   function changeLanguage(ext) {
     const currentUrl = window.location.href;
     const baseUrl = currentUrl.split("?")[0];
@@ -73,6 +76,13 @@ const Header = () => {
         onClick={() => navigate("/carrito")}>
           <img src={Caja} alt="Icono personalizado" className="w-10 h-7" />
         </button>
+
+
+        <button className={`cursor-pointer ${statusComand > 3 ? "" : "hidden"}`}
+        onClick={() => navigate("/seguimiento")}>
+          <img src={Seguimiento} alt="Icono personalizado" className="w-10 h-7" />
+        </button>
+        
       </div>
 
 

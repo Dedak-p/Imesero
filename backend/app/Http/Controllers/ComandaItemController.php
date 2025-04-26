@@ -260,4 +260,5 @@ class ComandaItemController extends Controller
         $item->delete();
         return response()->json(null, 204);
     }
+    
 }

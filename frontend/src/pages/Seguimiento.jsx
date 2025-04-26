@@ -1,20 +1,124 @@
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
 import Header from "../components/Header";
-import Item from "../components/Item";
 import SeccionTitulo from "../components/SeccionTitulo";
+import ItemCarrito from "../components/ItemCarrito";
+
+import Axios from "axios";
 
 const SeguimientoPage = () => {
+  const { mesaId, statusComand, setStatusComand } = useContext(AppContext);
+  const [error, setError] = useState(null);
+  
 
-    return (
-        <>
-            <Header />
-            <div className=' flex flex-col justify-between mt-5 mb-5 w-lg '>
-                <SeccionTitulo titulo="Seguimiento de pedido" />
-                <p>
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nobis culpa nulla possimus architecto omnis beatae nisi quisquam numquam, veniam vitae placeat perferendis reprehenderit aperiam? Eum commodi animi ad saepe consequatur.
-                </p>
+  useEffect(() => {
+    if (!mesaId) {
+      setError("No se ha asignado un ID de mesa.");
+      return;
+    }
+
+    const fetchComandaAndItems = async () => {
+      try {
+        const mesaResponse = await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}`);
+        if (!mesaResponse.ok) throw new Error("No se pudo obtener la mesa");
+        const mesaData = await mesaResponse.json();
+
+        if (!mesaData.comanda.id) {
+          setError("La mesa no tiene una comanda asociada");
+          return;
+        }
+        
+        console.log("Datos de la mesa:", mesaData.comanda.estado_comanda_id);
+        setStatusComand(mesaData.comanda.status_comanda_id);
+        
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchComandaAndItems();
+
+  }, [mesaId, setStatusComand]);
+
+ 
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+
+
+
+  return (
+    <>
+      <Header />
+      <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white bg-[#012340]">
+        <SeccionTitulo titulo="Seguimiento de tu pedido" />
+
+        <div className="flex flex-row justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto  border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C]">
+          {/* Columna A */}
+          <div className="w-1/3  mt-5 flex items-center justify-center relative">
+            {/* Zig-Zag SVG */}
+            <svg
+              className="h-4/5 w-24"
+              viewBox="0 0 100 400"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="90,0 10,100 90,200 10,300 90,400"
+                stroke="#2de1fc"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          {/* Columna B */}
+          <div className="w-2/3  flex flex-col justify-center p-8 space-y-4">
+
+            {/* Palabra fija */}
+            <div className="relative h-15  flex items-center justify-center">
+              {statusComand === 4 && (
+                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
+              )}
+              <span className="relative text-lg font-bold">Pagado</span>
             </div>
-        </>
-    );
+
+            <div className="relative h-15 mt-10 flex items-center justify-center">
+              {statusComand === 5 && (
+                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
+              )}
+              <span className="relative text-lg font-bold">Preparandose</span>
+            </div>
+
+            {/* Otra palabra fija */}
+            <div className="relative h-15 mt-10 flex items-center justify-center">
+              {statusComand === 6 && (
+                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
+              )}
+              <span className="relative text-lg font-bold">En camino</span>
+            </div>
+
+            {/* Otra palabra fija */}
+            <div className="relative h-15 mt-10 flex items-center justify-center">
+              {statusComand === 7 && (
+                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
+              )}
+              <span className="relative text-lg font-bold">Servido</span>
+            </div>
+
+          </div>
+        </div>
+
+
+
+
+
+      </div >
+    </>
+  );
 };
 
 export default SeguimientoPage;
