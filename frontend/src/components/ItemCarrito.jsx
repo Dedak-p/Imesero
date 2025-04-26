@@ -1,6 +1,8 @@
 import React from "react";
-
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext";
 const ItemCarrito = ({ producto, cantidad, onAdd, onRemove }) => {
+  const {lang} = useContext(AppContext);
   return (
     <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C]">
       <div className="flex flex-1">
@@ -12,8 +14,8 @@ const ItemCarrito = ({ producto, cantidad, onAdd, onRemove }) => {
           />
         </div>
         <div className="w-3/5 p-2 flex flex-col text-center justify-center text-white">
-          <h2 className="text-lg font-semibold mb-2">{producto.nombre}</h2>
-          <p className="text-sm text-gray-300 mb-2">{producto.descripcion}</p>
+          <h2 className="text-lg font-semibold mb-2">{producto[`nombre_${lang}`]}</h2>
+          <p className="text-sm text-gray-300 mb-2">{producto[`descripcion_${lang}`]}</p>
           <p className="text-md font-bold text-white">
             {producto.precio * cantidad} €
           </p>

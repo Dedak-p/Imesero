@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 //import '../styles/Header.css';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AppContext } from "../context/AppContext"; // Adjust the path as needed
+import { AppContext } from "../context/AppContext"; 
 import Flecha from "../assets/flecha.svg";
 import Usuario from "../assets/usuario.svg";
 import Caja from "../assets/caja.svg"
@@ -10,15 +10,13 @@ import useApiCall from "../hooks/useApiCall";
 // import CarritoDrop from "./CarritoDrop";
 
 const Header = () => {
+  const {setLang } = useContext(AppContext);
   const navigate = useNavigate();
   function changeLanguage(ext) {
-    const currentUrl = window.location.href;
-    const baseUrl = currentUrl.split("?")[0];
-    window.location.href = `${baseUrl}?lang=${ext}`;
-
+    setLang(ext);
   }
 
-    const { mesaId } = useContext(AppContext);
+  const { mesaId } = useContext(AppContext);
 
   const { data: categorias, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/categorias`);
   return (
@@ -65,12 +63,12 @@ const Header = () => {
         </span>
 
         <button className="cursor-pointer "
-        onClick={() => navigate("/usuario")}>
+          onClick={() => navigate("/usuario")}>
           <img src={Usuario} alt="Icono personalizado" className="w-10 h-7" />
         </button>
         {/* <CarritoDrop /> */}
         <button className="cursor-pointer "
-        onClick={() => navigate("/carrito")}>
+          onClick={() => navigate("/carrito")}>
           <img src={Caja} alt="Icono personalizado" className="w-10 h-7" />
         </button>
       </div>
