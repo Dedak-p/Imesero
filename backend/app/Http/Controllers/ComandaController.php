@@ -119,6 +119,7 @@ class ComandaController extends Controller
      */
     public function update(Request $request, Comanda $comanda)
     {
+         //dd($request->all());
         $data = $request->validate([
             'estado_comanda_id' => [
                 'sometimes','integer',
@@ -126,21 +127,21 @@ class ComandaController extends Controller
             ],
         ]);
 
-        $old = $comanda->estado_comanda_id;
+        //$old = $comanda->estado_comanda_id;
         $comanda->update($data);
 
         // Si pasó a “pagada”, liberamos la mesa
-        $pagadaId = EstadoComanda::where('nombre','pagada')->value('id');
+        /*$pagadaId = EstadoComanda::where('nombre','pagada')->value('id');
         if (
             isset($data['estado_comanda_id']) &&
             $data['estado_comanda_id'] === $pagadaId &&
             $old !== $pagadaId
         ) {
             $comanda->mesa()->update(['ocupada' => false]);
-        }
+        }*/
 
         return response()->json(
-            $comanda->load(['mesa','items.producto','items.estado','estadoComanda'])
+            $comanda->load(['mesa','items.producto','estadoComanda'])
         );
     }
 

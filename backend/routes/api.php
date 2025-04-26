@@ -45,6 +45,7 @@ Route::get('productos/{producto}',     [ProductoController::class,'show']);
 
 Route::get('comandas',                 [ComandaController::class,'index']);
 Route::get('comandas/{comanda}',       [ComandaController::class,'show']);
+Route::put('comandas/{comanda}', [ComandaController::class, 'update']);
 Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
 Route::middleware('auth:sanctum')->get('comandas-usuario', [ComandaController::class, 'comandasUsuario']);
 

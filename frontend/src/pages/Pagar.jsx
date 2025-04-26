@@ -11,6 +11,7 @@ const PagarPage = () => {
     const [itemsConfirmados, setItemsConfirmados] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         if (!mesaId) {
@@ -30,7 +31,7 @@ const PagarPage = () => {
                 }
 
                 const comandaId = mesaData.comanda.id;
-                
+
 
                 const itemsResponse = await fetch(`http://${window.location.hostname}:8000/api/comandas/${comandaId}/items`);
                 if (!itemsResponse.ok) throw new Error("No se pudieron obtener los ítems de la comanda");
@@ -77,14 +78,44 @@ const PagarPage = () => {
         try {
 
             // TODO: Cambiar el endpoint a uno que maneje el pago
+            const mesaResponse = await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}`);
+            if (!mesaResponse.ok) throw new Error("No se pudo obtener la mesa");
+            const mesaData = await mesaResponse.json();
 
-            // Actualiza el status de la comanda en el contexto
-            setStatusComand(4); // Por ejemplo, 4 para "Pagado" //FIXME: Una vez pagado, se debe actualiar "statusComand"  con setStatusComand(mesaData.comanda.status_comanda_id);
+            if (!mesaData.comanda?.id) {
+                setError("La mesa no tiene una comanda asociada");
+                return;
+            }
+
+            const comandaId = mesaData.comanda.id;
 
 
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            };
+
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
+            const pagoResponse = await fetch(`http://${window.location.hostname}:8000/api/comandas/${comandaId}`, {
+                method: "PUT",
+                headers,
+                body: JSON.stringify({
+                    estado_comanda_id: 5 // FIXME: No se porque si se pone 4 "pagado", la comanda se desliga de la mesa.
+                }),
+            });
+
+            const respuestaJson = await pagoResponse.json();
+
+            console.log("Pago confirmada", respuestaJson);
+
+            setStatusComand(respuestaJson.estado_comanda_id);
 
         } catch (error) {
-
+            console.error("Error al pagar la comanda:", error);
         }
     };
 

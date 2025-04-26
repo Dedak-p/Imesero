@@ -21,16 +21,18 @@ const SeguimientoPage = () => {
     const fetchComandaAndItems = async () => {
       try {
         const mesaResponse = await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}`);
-        if (!mesaResponse.ok) throw new Error("No se pudo obtener la mesa");
-        const mesaData = await mesaResponse.json();
-
-        if (!mesaData.comanda.id) {
-          setError("La mesa no tiene una comanda asociada");
-          return;
+        
+        if (!mesaResponse.ok) { 
+          throw new Error("No se pudo obtener la mesa"); 
         }
 
-        console.log("Datos de la mesa:", mesaData.comanda.estado_comanda_id);
-        setStatusComand(mesaData.comanda.status_comanda_id);
+        const mesaData = await mesaResponse.json();
+        console.log("Datos de la mesa:", mesaData);
+
+        if (!mesaData || !mesaData.comanda?.id) {
+          setError("La mesa no tiene una comanda asociada");
+          return;
+        }        
 
       } catch (error) {
         setError(error.message);
