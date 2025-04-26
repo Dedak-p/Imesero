@@ -4,6 +4,7 @@ import { createContext, useEffect, useState } from 'react';
 export const AppContext = createContext();
 
 export default function AppProvider({ children }) {
+    const [lang, setLang] = useState('es');
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [user, setUser] = useState(null);
     const [mesaId, setMesaId] = useState(null);
@@ -36,8 +37,9 @@ export default function AppProvider({ children }) {
     }, [token]);
 
 
+
     return (
-        <AppContext.Provider value={{ token, setToken, user, setUser, mesaId, setMesaId, statusComand, setStatusComand }}>
+        <AppContext.Provider value={{ token, setToken, user, setUser, mesaId, setMesaId, lang, setLang , statusComand, setStatusComand}}>
             {children}
         </AppContext.Provider>
     );

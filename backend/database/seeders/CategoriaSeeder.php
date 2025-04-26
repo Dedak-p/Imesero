@@ -17,8 +17,8 @@ class CategoriaSeeder extends Seeder
 
         foreach ($nombres as $nombre) {
             Categoria::updateOrCreate(
-                ['nombre' => $nombre],
-                ['nombre' => $nombre]
+                ['nombre_es' => $nombre],
+                ['nombre_es' => $nombre]
             );
         }
     }

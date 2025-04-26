@@ -11,13 +11,13 @@ class ProductoController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-{
-    // Obtener todos los productos
-    $productos = Producto::all();
+    {
+        // Obtener todos los productos
+        $productos = Producto::all();
 
-    // Devolver los productos como respuesta JSON
-    return response()->json($productos);
-}
+        // Devolver los productos como respuesta JSON
+        return response()->json($productos);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -27,12 +27,18 @@ class ProductoController extends Controller
         $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'ingredientes' => 'nullable|string',
+            'nombre_es' => 'required|string|max:255',
+            'nombre_ca' => 'required|string|max:255',
+            'nombre_en' => 'required|string|max:255',
+            'descripcion_es' => 'required|string',
+            'descripcion_ca' => 'required|string',
+            'descripcion_en' => 'required|string',
+            'ingredientes_es' => 'nullable|string',
+            'ingredientes_ca' => 'nullable|string',
+            'ingredientes_en' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'disponible'   => 'sometimes|boolean',
-            'recomendada'   => 'sometimes|boolean', 
+            'recomendada'  => 'sometimes|boolean', 
         ]);
 
         return Producto::create($request->all());
@@ -54,12 +60,18 @@ class ProductoController extends Controller
         $validated = $request->validate([
             'categoria_id' => 'sometimes|exists:categorias,id',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'nombre' => 'sometimes|required|string|max:255',
-            'descripcion' => 'sometimes|required|string',
-            'ingredientes' => 'sometimes|required|string',
+            'nombre_es' => 'sometimes|required|string|max:255',
+            'nombre_ca' => 'sometimes|required|string|max:255',
+            'nombre_en' => 'sometimes|required|string|max:255',
+            'descripcion_es' => 'sometimes|required|string',
+            'descripcion_ca' => 'sometimes|required|string',
+            'descripcion_en' => 'sometimes|required|string',
+            'ingredientes_es' => 'nullable|string',
+            'ingredientes_ca' => 'nullable|string',
+            'ingredientes_en' => 'nullable|string',
             'precio' => 'sometimes|required|numeric|min:0',
             'disponible'   => 'sometimes|boolean',
-            'recomendada'   => 'sometimes|boolean', 
+            'recomendada'  => 'sometimes|boolean', 
         ]);
         
         $producto->update($validated);

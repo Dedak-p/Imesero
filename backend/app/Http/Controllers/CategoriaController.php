@@ -16,7 +16,7 @@ class CategoriaController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nombre' => 'required|string|unique:categorias,nombre',
+            'nombre_es' => 'required|string|unique:categorias,nombre_es',
         ]);
 
         $categoria = Categoria::create($data);
@@ -31,7 +31,7 @@ class CategoriaController extends Controller
     public function update(Request $request, Categoria $categoria)
     {
         $data = $request->validate([
-            'nombre' => 'sometimes|string|unique:categorias,nombre,'.$categoria->id,
+            'nombre_es' => 'sometimes|string|unique:categorias,nombre_es,'.$categoria->id,
         ]);
 
         $categoria->update($data);
