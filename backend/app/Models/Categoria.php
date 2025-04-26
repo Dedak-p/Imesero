@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Categoria extends Model
 {
     protected $fillable = [
-        'nombre',
+        'nombre_es',
     ];
 
     /**
