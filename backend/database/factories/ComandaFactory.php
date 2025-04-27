@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Mesa;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Comanda>
@@ -17,6 +18,7 @@ class ComandaFactory extends Factory
     public function definition(): array
     {
         return [
+            'mesa_id' => Mesa::factory(),
             //
         ];
     }
