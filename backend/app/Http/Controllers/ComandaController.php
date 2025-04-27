@@ -94,8 +94,8 @@ class ComandaController extends Controller
     public function confirm(Comanda $comanda)
     {
         // IDs dinámicos de “pedido” y “confirmada”
-        $pedidoId     = EstadoComanda::where('nombre','pedido')->value('id');
-        $confirmadaId = EstadoComanda::where('nombre','confirmada')->value('id');
+        $pedidoId     = 1;
+        $confirmadaId = 2;
 
         // Sólo desde “pedido” se puede confirmar
         if ($comanda->estado_comanda_id !== $pedidoId) {

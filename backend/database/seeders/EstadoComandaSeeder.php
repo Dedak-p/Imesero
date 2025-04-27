@@ -19,9 +19,14 @@ class EstadoComandaSeeder extends Seeder
             ['nombre' => 'pedido',     'orden' => 2],
             ['nombre' => 'confirmada', 'orden' => 3],
             ['nombre' => 'pagada',     'orden' => 4],
-            ['nombre' => 'preparando', 'orden' => 5],
-            ['nombre' => 'encamino',   'orden' => 6],
-            ['nombre' => 'servido',    'orden' => 7],
+
+            // ['nombre' => 'borrador',   'orden' => 1],
+            // ['nombre' => 'pedido',     'orden' => 2],
+            // ['nombre' => 'confirmada', 'orden' => 3],
+            // ['nombre' => 'pagada',     'orden' => 4],
+            // ['nombre' => 'preparando', 'orden' => 5],
+            // ['nombre' => 'encamino',   'orden' => 6],
+            // ['nombre' => 'servido',    'orden' => 7],
         ];
 
         // 3) Inserta cada estado; como la tabla está vacía, no provoca duplicados

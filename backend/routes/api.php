@@ -64,7 +64,7 @@ Route::middleware('auth:sanctum')->post('/mesas/{mesa}/itemsAuth', [ComandaItemC
 // Cliente confirma SU ítem (por confirmar → confirmado) y dispara comanda borrador → pedido
 Route::patch('mesas/{mesa}/confirm', [ComandaItemController::class,'confirm']);
 
-Route::post('pagos/{mesa}/{itemComanda}', [PagoController::class,'store']);
+Route::post('pagos', [PagoController::class,'store']);
 
 // Cliente puede ver sus ítems (opcional, si los necesita fuera de comanda)
 Route::get('comanda-items/{comandaId}', [ComandaItemController::class,'show']);

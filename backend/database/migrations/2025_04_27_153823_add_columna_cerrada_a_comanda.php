@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comanda_items', function (Blueprint $table) {
-            $table->boolean('pagada')->default(false)->after('estado_item_id');
+        Schema::table('comandas', function (Blueprint $table) {
+            $table->boolean('cerrada')->default(false)->after('estado_comanda_id');
         });
     }
 
@@ -21,9 +21,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comanda_items', function (Blueprint $table) {
-            $table->dropColumn('pagada');
+        Schema::table('comandas', function (Blueprint $table) {
+            $table->dropColumn('cerrada');
         });
         //
     }
 };
+
