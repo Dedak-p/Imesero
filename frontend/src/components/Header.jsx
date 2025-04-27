@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 //import '../styles/Header.css';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -12,23 +12,23 @@ import useApiCall from "../hooks/useApiCall";
 
 const Header = () => {
   const {setLang } = useContext(AppContext);
+  const location = useLocation();
+  const { mesaId: mesaObtenida } = useParams();
+  const path = location.pathname;
   const navigate = useNavigate();
-  const { statusComand } = useContext(AppContext);
-
+  const { statusComand, mesaId } = useContext(AppContext);
   function changeLanguage(ext) {
     setLang(ext);
   }
 
-  const { mesaId } = useContext(AppContext);
-
   const { data: categorias, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/categorias`);
   return (
-    <header className="fixed top-0 left-0  grid grid-cols-2 grid-rows-2 p-4  bg-blue-950 shadow-md  w-full">
+    <header className="sticky top-0 left-0  grid grid-cols-2 grid-rows-2 p-4  bg-blue-950 shadow-md  w-full">
 
 
-      <button className=" p-2 rounded-full justify-items-start cursor-pointer"
-        onClick={() => navigate(-1)}>
-        <img src={Flecha} alt="Icono personalizado" className="w-10 h-7" />
+      <button className=" p-2 rounded-full justify-items-start  "
+        >
+        <img src={Flecha} alt="Icono personalizado" className="w-10 h-7 cursor-pointer" onClick={() => navigate(-1)}/>
 
       </button>
 
@@ -71,13 +71,13 @@ const Header = () => {
         </button>
         {/* <CarritoDrop /> */}
         <button className="cursor-pointer "
-          onClick={() => navigate("/carrito")}>
+          onClick={() => navigate("/carrito/" + mesaId)}>
           <img src={Caja} alt="Icono personalizado" className="w-10 h-7" />
         </button>
 
 
         <button className={`cursor-pointer ${statusComand > 3 ? "" : "hidden"}`}
-        onClick={() => navigate("/seguimiento")}>
+        onClick={() => navigate("/seguimiento" + mesaId)}>
           <img src={Seguimiento} alt="Icono personalizado" className="w-10 h-7" />
         </button>
         
@@ -85,29 +85,41 @@ const Header = () => {
 
 
       <div className="flex flex-col col-span-2 items-center self-end">
-        <nav className="flex gap-6 overflow-x-auto text-white font-semibold">
-          {loading && <span>Cargando categorías…</span>}
-          {error && <span>Error al cargar</span>}
-          {!loading && !error && categorias.map(cat => {
-            if (!cat || !cat.nombre) return null;
-
-            const slug = cat.nombre
-              .toLowerCase()
-              .replace(/\s+/g, "-")
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "");
-
-            return (
-              <a
-                key={cat.id}
-                href={`/menu/${mesaId}#${slug}`}
-                className="hover:text-gray-300 whitespace-nowrap"
-              >
-                {cat.nombre.toUpperCase()}
-              </a>
-            );
-          })}
-        </nav>
+      <nav className="flex gap-6 overflow-x-auto text-white font-semibold">
+        {path.startsWith("/menu/") && 
+          // ——— Si estamos en /menu ———
+          <>
+            {loading && <span>Cargando categorías…</span>}
+            {error && <span>Error al cargar categorías</span>}
+            {!loading && !error && categorias.map(cat => {
+              if (!cat?.nombre) return null;
+              const slug = cat.nombre
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+              return (
+                <a
+                  key={cat.id}
+                  href={`/menu/${mesaObtenida}#${slug}`}
+                  className="hover:text-gray-300 whitespace-nowrap"
+                >
+                  {cat.nombre.toUpperCase()}
+                </a>
+              );
+            })}
+          </>
+        }
+        {path.startsWith("/carrito/") && 
+          // ——— Si estamos en /menu ———
+                <a
+                  href={`/menu/${mesaObtenida}`}
+                  className="hover:text-gray-300 whitespace-nowrap"
+                >
+                  Volver a la Carta
+                </a>
+        }
+     </nav>
 
       </div>
 

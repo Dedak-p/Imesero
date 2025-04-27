@@ -8,7 +8,7 @@ import useApiCall from "../hooks/useApiCall";
 import { AppContext } from "../context/AppContext.jsx";
 
 const MenuPage = () => {
-  const { mesaId, setMesaId } = useContext(AppContext); // Primero obtener setMesaId y mesaId desde el contexto
+  const { setMesaId } = useContext(AppContext); // Primero obtener setMesaId y mesaId desde el contexto
   const { mesaId: mesaObtenida } = useParams(); // ← Esto toma el "3" de /menu/3
 
   // Cuando el componente se monta, se setea el valor de mesaId
@@ -16,9 +16,7 @@ const MenuPage = () => {
     if (mesaObtenida) {
       setMesaId(mesaObtenida); // Seteamos el nuevo id de la mesa
     }
-  }, [mesaObtenida, setMesaId]); // Solo se ejecutará si cambia mesaObtenida
-
-  console.log(mesaId);
+  }, [mesaObtenida]); // Solo se ejecutará si cambia mesaObtenida
   // Menú variable de estado = array vacío por defecto
   const { data: menu, loading, error, refetch } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/productos`);
 
@@ -40,8 +38,8 @@ const MenuPage = () => {
   
       // Elegir el endpoint según autenticación
       const endpoint = isAuthenticated
-        ? `/api/mesas/${mesaId}/itemsAuth`
-        : `/api/mesas/${mesaId}/items`;
+        ? `/api/mesas/${mesaObtenida}/itemsAuth`
+        : `/api/mesas/${mesaObtenida}/items`;
   
       const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
   

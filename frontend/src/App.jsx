@@ -20,7 +20,7 @@ function App() {
       <Route path="/crearCuenta" element={<CrearCuenta />} /> {/*Devolvemos crear cuenta*/}
       <Route path="/item" element={<ItemSelected />} />
       <Route path="/menu/:mesaId" element={<Menu />} />
-      <Route path="/carrito" element={<CarritoPage />} />
+      <Route path="/carrito/:mesaId" element={<CarritoPage />} />
       <Route path="/seguimiento" element={<SeguimientoPage />} />
       <Route path = "/usuario" element={<UsuarioPage />}/>
       <Route path = "/pagar" element={<PagarPage />} />

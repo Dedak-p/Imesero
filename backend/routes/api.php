@@ -51,7 +51,7 @@ Route::get('estado-comandas',          [EstadoComandaController::class,'index'])
 Route::get('estado-comandas/{id}',     [EstadoComandaController::class,'show']);
 
 
-Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
+
 // Rustas para el cliente 
 // Autenticados
 Route::middleware('auth:sanctum')->get('comandas-usuario', [ComandaController::class, 'comandasUsuario']);
@@ -84,7 +84,7 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     Route::get('comandas',                 [ComandaController::class,'index']);
     Route::get('comandas/{comanda}',       [ComandaController::class,'show']);
     Route::put('comandas/{comanda}', [ComandaController::class, 'update']);
-    
+    Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
     // Gestión de comanda-items: avanzar estados (cocina, camino, entregado…) y eliminar
     Route::put('comanda-items/{comandaItem}',    [ComandaItemController::class,'update']);
     Route::delete('comanda-items/{comandaItem}', [ComandaItemController::class,'destroy']);
