@@ -17,6 +17,7 @@ class Comanda extends Model
         'user_id',
         'anonimo',
         'estado_comanda_id',
+        'cerrada',
     ];
 
     protected $casts = [

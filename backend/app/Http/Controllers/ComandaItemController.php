@@ -53,7 +53,7 @@ class ComandaItemController extends Controller
         $comanda = Comanda::where('mesa_id', $mesa->id)
             ->where('user_id', auth()->id())
             ->where('anonimo', auth()->guest())
-            ->whereIn('estado_comanda_id', [1, 2, 3, 4])
+            ->where('cerrada', false)
             ->latest()
             ->first();
 
@@ -120,7 +120,7 @@ class ComandaItemController extends Controller
         $comanda = Comanda::where('mesa_id', $mesa->id)
             ->where('user_id', auth()->id())
             ->where('anonimo', auth()->guest())
-            ->whereIn('estado_comanda_id', [1, 2, 3, 4])
+            ->where('cerrada', false)
             ->latest()
             ->first();
 
