@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', fn(Request $r) => $r->user());
 
 // Rutas públicas: lectura de recursos
 Route::get('mesas',                    [MesaController::class,'index']);
+
 Route::get('mesas/{mesa}',             [MesaController::class,'show']);
 
 Route::get('categorias',               [CategoriaController::class,'index']);
@@ -47,6 +48,7 @@ Route::get('comandas',                 [ComandaController::class,'index']);
 Route::get('comandas/{comanda}',       [ComandaController::class,'show']);
 Route::put('comandas/{comanda}', [ComandaController::class, 'update']);
 Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
+
 Route::middleware('auth:sanctum')->get('comandas-usuario', [ComandaController::class, 'comandasUsuario']);
 
 Route::get('estados-items',            [EstadoPedidoItemController::class,'index']);
@@ -59,11 +61,10 @@ Route::get('estado-comandas/{id}',     [EstadoComandaController::class,'show']);
 Route::post('mesas/{mesa}/items', [ComandaItemController::class,'store']);
 //Autenticado
 Route::middleware('auth:sanctum')->post('/mesas/{mesa}/itemsAuth', [ComandaItemController::class, 'storeAuth']);
-
-
 // Cliente confirma SU ítem (por confirmar → confirmado) y dispara comanda borrador → pedido
 Route::patch('mesas/{mesa}/confirm', [ComandaItemController::class,'confirm']);
 
+Route::post('pagos/{mesa}/{itemComanda}', [PagoController::class,'store']);
 
 // Cliente puede ver sus ítems (opcional, si los necesita fuera de comanda)
 Route::get('comanda-items/{comandaId}', [ComandaItemController::class,'show']);
@@ -87,5 +88,5 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
 
     // Métodos de pago y pagos
     Route::apiResource('metodos-pago', MetodoPagoController::class);
-    Route::apiResource('pagos',        PagoController::class);
+    Route::apiResource('pagos',        PagoController::class,)->only(['index','show','update','destroy']);
 });

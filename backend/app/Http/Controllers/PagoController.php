@@ -17,7 +17,7 @@ class PagoController extends Controller
         );
     }
 
-    public function store(Request $request)
+    public function store(  $request)
     {
         $data = $request->validate([
             'metodo_pago_id' => 'required|exists:metodos_pago,id',
