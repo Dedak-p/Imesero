@@ -7,7 +7,7 @@ use App\Models\ComandaItem;
 use App\Models\Pago;
 use \Illuminate\Support\Str;
 use App\Models\Comanda;
-use App\Models\Mesa;
+
 use Illuminate\Http\Request;
 
 class PagoController extends Controller
@@ -38,13 +38,13 @@ class PagoController extends Controller
                 ->first();
     
             if (!$comanda) {
-                return response()->json(['error' => 'No hay comanda abierta en esa mesa'], 422);
+                return response()->json(['error' => 'La comanda no esta comfirmada, espera a que la admin lo confirme'], 422);
             }
     
             // Ítems pendientes de pago
             $items = $comanda->items()
                 ->where('pagada', false)
-                ->whereIn('estado_pedido_item', [2,3,4])
+                ->whereIn('estado_item_id', [2,3,4])
                 ->get();
             if ($items->isEmpty()) {
                 return response()->json(['error' => 'Todos los ítems ya han sido pagados'], 422);
@@ -76,7 +76,7 @@ class PagoController extends Controller
     
                 // Si no quedan ítems pendientes, cerrar la comanda
                 if ($comanda->items()->where('pagada', false)->count() === 0) {
-                    $comanda->estado_comanda_id = 4; // estado "cerrado" o el que uses
+                    $comanda->estado_comanda_id = 4; // estado "pagado"
                     $comanda->save();
                 }
     
@@ -156,7 +156,14 @@ class PagoController extends Controller
                 'monto'          => $monto,
                 'referencia'     => $ref,
             ]);
-    
+
+            $comanda = $item->comanda;
+            // Si no quedan ítems pendientes, cerrar la comanda
+            if ($comanda->items()->where('pagada', false)->count() === 0) {
+                $comanda->estado_comanda_id = 4; // estado "pagada" 
+                $comanda->save();
+            }
+
             \DB::commit();
             return response()->json($pago->load(['metodo','comanda']), 201);
     

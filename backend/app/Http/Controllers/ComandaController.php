@@ -8,6 +8,7 @@ use App\Models\EstadoComanda;
 use App\Models\Mesa;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class ComandaController extends Controller
 {
@@ -93,24 +94,33 @@ class ComandaController extends Controller
      */
     public function confirm(Comanda $comanda)
     {
-        // IDs dinámicos de “pedido” y “confirmada”
-        $pedidoId     = 1;
-        $confirmadaId = 2;
-
         // Sólo desde “pedido” se puede confirmar
-        if ($comanda->estado_comanda_id !== $pedidoId) {
+        if ($comanda->estado_comanda_id !== 2) {
             return response()->json([
                 'message' => 'Sólo se puede confirmar una comanda en estado “pedido”.'
             ], 422);
         }
 
-        // Actualizar al estado “confirmada”
-        $comanda->update(['estado_comanda_id' => $confirmadaId]);
+        $comanda->update(['estado_comanda_id' => 3]);
 
-        // Recargar relaciones
-        $comanda->refresh()->load(['mesa','items.producto','items.estado','estadoComanda']);
+        return response()->json($comanda->load(['mesa','items.producto','estadoComanda']));
+    }
 
-        return response()->json($comanda);
+    public function cerrar(Comanda $comanda)
+    {
+        // Sólo si está “lista” (3) se puede cerrar
+        if ($comanda->estado_comanda_id !== 4) {
+            return response()->json([
+                'message' => 'Sólo se puede cerrar una comanda en estado “lista para entregar”.'
+            ], 422);
+        }
+
+        DB::transaction(function() use ($comanda) {
+            $comanda->update(['cerrada' => true]);
+            $comanda->mesa->update(['ocupada' => false]);
+        });
+
+        return response()->json($comanda->load(['mesa','estadoComanda']));
     }
 
     /**
@@ -119,7 +129,6 @@ class ComandaController extends Controller
      */
     public function update(Request $request, Comanda $comanda)
     {
-         //dd($request->all());
         $data = $request->validate([
             'estado_comanda_id' => [
                 'sometimes','integer',
@@ -127,18 +136,7 @@ class ComandaController extends Controller
             ],
         ]);
 
-        //$old = $comanda->estado_comanda_id;
         $comanda->update($data);
-
-        // Si pasó a “pagada”, liberamos la mesa
-        /*$pagadaId = EstadoComanda::where('nombre','pagada')->value('id');
-        if (
-            isset($data['estado_comanda_id']) &&
-            $data['estado_comanda_id'] === $pagadaId &&
-            $old !== $pagadaId
-        ) {
-            $comanda->mesa()->update(['ocupada' => false]);
-        }*/
 
         return response()->json(
             $comanda->load(['mesa','items.producto','estadoComanda'])
