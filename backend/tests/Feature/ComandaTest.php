@@ -10,7 +10,7 @@ use App\Models\ComandaItem;
 use App\Models\User;
 use App\Models\Producto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Test;
 
 class ComandaTest extends TestCase
@@ -25,49 +25,9 @@ class ComandaTest extends TestCase
         $this->seed();
     }
 
-    
-    /*public function puede_calcular_el_total_correctamente()
-    {
-        $comanda = Comanda::factory()->create();
-        ComandaItem::factory()->create([
-            'comanda_id' => $comanda->id,
-            'cantidad' => 2,
-            'precio_unitario' => 10.50,
-        ]);
-        ComandaItem::factory()->create([
-            'comanda_id' => $comanda->id,
-            'cantidad' => 1,
-            'precio_unitario' => 5.00,
-        ]);
-
-        $this->assertEquals(26.00, $comanda->total);
-    }*/
-
-    
-    /*public function puede_obtener_el_estado_correctamente()
-    {
-        $estado = EstadoComanda::factory()->create(['nombre' => 'Pagado']);
-        $comanda = Comanda::factory()->create(['estado_comanda_id' => $estado->id]);
-
-        $this->assertEquals('Pagado', $comanda->estado);
-    }*/
-
-    
-    /*public function test_puede_relacionarse_con_una_mesa()
-    {
-        $mesa = Mesa::factory()->create();
-        $comanda = Comanda::factory()->create(['mesa_id' => $mesa->id]);
-
-        $this->assertEquals($mesa->id, $comanda->mesa->id);
-    }*/
 
     public function test_puede_crear_una_comanda_y_ocupar_la_mesa()
     {
-        // 1. Crear el estado "borrador"
-        /*$estadoBorrador = EstadoComanda::factory()->create([
-            'nombre' => 'borrador',
-        ]);*/
-
         // 1. Obtener el estado "borrador" desde la base de datos (ya sembrado por el Seeder)
         $estadoBorrador = EstadoComanda::where('nombre', 'borrador')->first();
 
@@ -75,7 +35,7 @@ class ComandaTest extends TestCase
         $mesa = Mesa::factory()->libre()->create();
 
         // 3. Crear un producto (suponiendo que ya tienes productos en la base de datos)
-        $producto = Producto::where('id', 5)->first();
+        $producto = Producto::where('nombre_es', 'Agua')->first();
         $cantidad = 1;
 
         // 4. Realizar la solicitud POST para agregar un ítem a la comanda
@@ -84,7 +44,7 @@ class ComandaTest extends TestCase
             'cantidad' => $cantidad, // Ejemplo de cantidad (Se le puede pasar 1 o -1 solamente)
         ]);
 
-        // 4. Comprobaciones
+        // 5. Comprobaciones
 
         // Código de respuesta 201
         $response->assertStatus(201);
@@ -101,6 +61,29 @@ class ComandaTest extends TestCase
         // Comprobar que el ítem se ha añadido correctamente
         $item = $comanda->items()->where('producto_id', $producto->id)->first();
         $this->assertNotNull($item);
-        $this->assertEquals($cantidad, $item->cantidad); // La cantidad debe ser 2                  
+        $this->assertEquals($cantidad, $item->cantidad); // La cantidad debe ser 1
     }
+
+    public function test_no_puede_crear_una_comanda_con_un_item_con_cantidad_dos()
+    {
+        // Sembramos la base de datos con datos de prueba
+        Artisan::call('db:seed');
+
+        // Crear una mesa libre
+        $mesa = Mesa::factory()->libre()->create();
+
+        // Crear un producto (suponiendo que ya tienes productos en la base de datos)
+        $producto = Producto::where('nombre_es', 'Agua')->first();
+        $cantidad = 2;
+
+        // Realizar la solicitud POST para agregar un ítem a la comanda
+        $response = $this->postJson(route('mesas.items.store', ['mesa' => $mesa->id]), [
+            'producto_id' => $producto->id,
+            'cantidad' => $cantidad, // Intentar agregar un ítem con cantidad 2
+        ]);
+
+        // Comprobar que la respuesta es un error 422 (Unprocessable Entity)
+        $response->assertStatus(422);
+    }
+
 }
