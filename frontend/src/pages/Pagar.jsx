@@ -122,7 +122,7 @@ const PagarPage = () => {
     const textos = {
         resumen :{
             es: "Resumen de tu Comanda Confirmada",
-            en: "Sumary of your Confirmed Ordre",
+            en: "Sumary of your Confirmed Order",
             ca: "Resum de la teva Comanda Confirmada"
         },
         pagar :{
