@@ -28,7 +28,7 @@ class MesaController extends Controller
     public function show(Mesa $mesa)
     {
         if ($mesa->ocupada) {
-            $comanda = $mesa->comandas()->whereNotIn('estado_comanda_id', [4])->latest()->first();
+            $comanda = $mesa->comandas()->whereNot('cerrada', true)->latest()->first();
             return response()->json([
                 'mesa'    => $mesa,
                 'comanda' => $comanda

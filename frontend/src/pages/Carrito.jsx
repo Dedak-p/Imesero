@@ -1,20 +1,14 @@
-import { useState, useEffect, useContext } from "react";
-import { AppContext } from "../context/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback, useMemo, useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import SeccionTitulo from "../components/SeccionTitulo";
 import ItemCarrito from "../components/ItemCarrito";
-
-import Axios from "axios";
+import useApiCall from "../hooks/useApiCall";
+import apiClient from "../api/apiClient";
+import { AppContext } from "../context/AppContext";
 
 const CarritoPage = () => {
-  const { mesaId } = useContext(AppContext);
   const {lang} = useContext(AppContext);
-  const [items, setItems] = useState([]);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token'); 
-
   const textos = {
     carrito :{
       es: "Este es tu carrito",
@@ -37,212 +31,151 @@ const CarritoPage = () => {
 
 
   }
-  useEffect(() => {
-    if (!mesaId) {
-      setError("No se ha asignado un ID de mesa.");
-      return;
-    }
 
-    const fetchComandaAndItems = async () => {
+  const navigate = useNavigate();
+  const { mesaId: mesaObtenida } = useParams();
+  const token = localStorage.getItem("token");
+
+  const {
+    data: mesaDataArr,
+    loading: loadingMesa,
+    error: errorMesa,
+    refetch: refetchMesa
+  } = useApiCall(`/mesas/${mesaObtenida}`, "get", null, [mesaObtenida]);
+
+  const mesaData = mesaDataArr[0] || {};
+  const { mesa, comanda } = mesaData;
+
+  // Agrupar sólo ítems no pagados
+  const itemList = useMemo(() => {
+    if (!comanda?.items) return [];
+    const map = {};
+    comanda.items
+      .filter(i => !i.pagada)
+      .forEach(i => {
+        const key = i.producto_id;
+        if (!map[key]) {
+          map[key] = { ...i, subtotal: i.cantidad * i.precio_unitario };
+        } else {
+          map[key].cantidad += i.cantidad;
+          map[key].subtotal += i.cantidad * i.precio_unitario;
+        }
+      });
+    return Object.values(map);
+  }, [comanda]);
+  console.log("itemList", itemList);
+
+  // Calcular total
+  const total = useMemo(
+    () => itemList.reduce((sum, it) => sum + it.subtotal, 0),
+    [itemList]
+  );
+
+  // POST para añadir/quitar ítem
+
+  const updateItem = useCallback(
+    async (productoId, delta) => {
       try {
-        const mesaResponse = await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}`);
-        if (!mesaResponse.ok) throw new Error("No se pudo obtener la mesa");
-        const mesaData = await mesaResponse.json();
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
 
-        if (!mesaData.comanda.id) {
-          setError("La mesa no tiene una comanda asociada");
-          return;
-        }
-
-        const comandaId = mesaData.comanda.id;
-
-        const itemsResponse = await fetch(`http://${window.location.hostname}:8000/api/comandas/${comandaId}/items`);
-        if (!itemsResponse.ok) throw new Error("No se pudieron obtener los ítems de la comanda");
-        const itemsData = await itemsResponse.json();
-
-        const itemsAgrupados = itemsData.reduce((acc, item) => {
-          const existingItem = acc.find((i) => i.producto.id === item.producto.id);
-          if (existingItem) {
-            existingItem.cantidad += item.cantidad;
-          } else {
-            acc.push({ ...item });
-          }
-          return acc;
-        }, []);
-
-        setItems(itemsAgrupados);
-      } catch (error) {
-        setError(error.message);
+        await apiClient.post(
+          `/mesas/${mesaObtenida}/items`,
+          { producto_id: productoId, cantidad: delta },
+          { headers }
+        );
+        await refetchMesa();
+      } catch (e) {
+        console.error("Error al actualizar ítem:", e.response?.data || e.message);
       }
-    };
+    },
+    [mesaObtenida, token, refetchMesa]
+  );
 
-    fetchComandaAndItems();
-  }, [mesaId]);
+  const añadirCarrito = (id) => updateItem(id, 1);
+  const eliminarCarrito = (id) => updateItem(id, -1);
 
-  // Añadir producto desde backend
-  const añadirCarrito = async (producto) => {
+  // Estado y PATCH para confirmar comanda
+  const [confirming, setConfirming] = useState(false);
+  const manejarConfirmacion = useCallback(async () => {
+    if (itemList.length === 0) return;
     try {
-
-      const isAuthenticated = !!token; // Verificar si el usuario está autenticado
-
-      // Construir headers
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      // Si el token está presente, agregarlo a las cabeceras
-      if (isAuthenticated) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      // Elegir el endpoint según autenticación
-      const endpoint = isAuthenticated
-        ? `/api/mesas/${mesaId}/itemsAuth`
-        : `/api/mesas/${mesaId}/items`;
-
-      const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
-
-      // Realizar la solicitud POST
-      const response = await Axios.post(
-        url,
-        {
-          producto_id: producto.id,
-          cantidad: 1,
-        },
-        {
-          withCredentials: true, // Si usas cookies, mantenlo
-          headers: headers,
-        }
-      );
-      añadirItemFront(producto);
-      console.log("Producto añadido a la comanda:", response.data);
-    } catch (error) {
-      console.error("Error al añadir producto:", error.response?.data || error.message);
+      setConfirming(true);
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      await apiClient.patch(`/mesas/${mesaObtenida}/confirm`, {}, { headers });
+      navigate("/pagar");
+    } catch (e) {
+      console.error("Error al confirmar comanda:", e);
+    } finally {
+      setConfirming(false);
     }
-  };
+  }, [itemList.length, mesaObtenida, navigate, token]);
 
-  // Eliminar producto desde backend
-  const eliminarCarrito = async (productoId) => {
-    try {
-      const response = await Axios.post(
-        `${window.location.protocol}//${window.location.hostname}:8000/api/mesas/${mesaId}/items`,
-        {
-          producto_id: productoId,
-          cantidad: -1,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // ── Ahora los returns condicionales ───────────────────────────
 
-      console.log("Producto eliminado:", response.data);
-      eliminarItemFront(productoId);
-    } catch (error) {
-      console.error("Error al eliminar producto:", error.response?.data || error.message);
-    }
-  };
-
-  const añadirItemFront = (producto) => {
-    setItems((prevItems) => {
-      const updated = prevItems.map((item) =>
-        item.producto.id === producto.id
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      );
-      return updated;
-    });
-  };
-
-  const eliminarItemFront = (productoId) => {
-    setItems((prevItems) => {
-      const updated = prevItems
-        .map((item) =>
-          item.producto.id === productoId
-            ? { ...item, cantidad: item.cantidad - 1 }
-            : item
-        )
-        .filter((item) => item.cantidad > 0);
-      return updated;
-    });
-  };
-
-  const calcularTotal = () =>
-    items.reduce((total, item) => total + item.producto.precio * item.cantidad, 0);
-
-  if (error) {
-    return <div>{error}</div>;
+  if (errorMesa) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-400 bg-[#012340]">
+        <p>{errorMesa.message || errorMesa}</p>
+      </div>
+    );
   }
 
-
-  //Función que maneja la confirmación de pedidos 
-  const manejarConfirmacion = async () => {
-    try {
-
-      const headers = {
-        "Content-Type": "application/json",
-      };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}/confirm`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({
-        }),
-      });
-
-      console.log("Comanda confirmada");
-    } catch (error) {
-      console.error("Error al confirmar comanda:", error);
-    }
-  };
-
+  // ── Finalmente, el renderizado normal ────────────────────────
   return (
     <>
       <Header />
-      <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white bg-[#012340]">
-        <SeccionTitulo titulo={textos.carrito[lang]} />
-        <div className="mt-4">
-          {items.length > 0 ? (
-            items.map((item) => {
-              const producto = item.producto;
-              return producto ? (
-                <ItemCarrito
-                  key={producto.id}
-                  producto={producto}
-                  cantidad={item.cantidad}
-                  onAdd={() => añadirCarrito(producto)}
-                  onRemove={() => eliminarCarrito(producto.id)}
-                />
+      <div className="min-h-screen p-6 bg-[#012340] text-white">
+      <SeccionTitulo titulo={textos.carrito[lang]} />
+  
+        {loadingMesa ? (
+          <div className="h-50 flex items-center justify-center text-white bg-[#012340]">
+            <p>Cargando datos de la mesa…</p>
+          </div>
+        ) : (!comanda ? (
+          <div className="h-50 flex items-center justify-center text-white bg-[#012340]">
+          <p>No hay comanda en esta mesa.</p>
+          </div>
+        ):(
+          <>
+            {/* Lista de ítems */}
+            <div className="space-y-3">
+              {itemList.length > 0 ? (
+                itemList.map(item => (
+                  <ItemCarrito
+                    key={item.id}
+                    productoId={item.producto_id}
+                    cantidad={item.cantidad}
+                    onAdd={añadirCarrito}
+                    onRemove={eliminarCarrito}
+                  />
+                ))
               ) : (
-                <p key={item.producto_id}>Cargando producto...</p>
-              );
-            })
-          ) : (
-            <p>No hay productos en el carrito.</p>
-          )}
-        </div>
-
-        <SeccionTitulo titulo={`${textos.precios[lang]}:  ${calcularTotal().toFixed(2)} €`} />
-
-        <div className="mt-6">
-          <button
-           onClick={async () => {
-            await manejarConfirmacion();
-            navigate("/pagar");
-          }}
-          className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-120 px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
-          >
-          {textos.confirmacion[lang]}
-        </button>
+                <p>No hay productos pendientes de pago.</p>
+              )}
+            </div>
+  
+            {/* Subtotal y botón Confirmar */}
+            <div className="mt-6 text-center">
+              <SeccionTitulo titulo={`${textos.precios[lang]}:  ${total.toFixed(2)} €`} />
+              <button
+                onClick={manejarConfirmacion}
+                disabled={itemList.length === 0 || confirming}
+                className={`mt-4 px-8 py-3 font-bold rounded-xl transition ${
+                  itemList.length === 0 || confirming
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-white text-[#7646e5] hover:scale-105"
+                }`}
+              >
+                {confirming ? "Confirmando…" : `${textos.confirmacion[lang]}`}
+              </button>
+            </div>
+          </>
+        ))}
       </div>
-    </div >
     </>
   );
-};
+}
 
 export default CarritoPage;
