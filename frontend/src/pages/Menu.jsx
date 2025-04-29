@@ -9,7 +9,41 @@ import { AppContext } from "../context/AppContext.jsx";
 
 const MenuPage = () => {
   const { mesaId, setMesaId } = useContext(AppContext); // Primero obtener setMesaId y mesaId desde el contexto
-  const { mesaId: mesaObtenida } = useParams(); // ← Esto toma el "3" de /menu/3
+  const { mesaId: mesaObtenida } = useParams();
+  const {lang} = useContext(AppContext);
+
+  const textos = {
+    recomendacion: {
+      es: "Recomendación de la casa",
+      en: "Chef's recommendation",
+      ca: "Recomanació de la casa"
+    },
+  
+    primeros: {
+      es: "Primeros",
+      en: "Starters", 
+      ca: "Primers"
+    },
+  
+    segundos: {
+      es: "Segundos",
+      en: "Main courses",
+      ca: "Segons"
+    },
+  
+    postres: {
+      es: "Postres",
+      en: "Desserts",
+      ca: "Postres"
+    },
+  
+    bebidas: {
+      es: "Bebidas",
+      en: "Drinks",
+      ca: "Begudes"
+    }
+  };
+
 
   // Cuando el componente se monta, se setea el valor de mesaId
   useEffect(() => {
@@ -27,24 +61,24 @@ const MenuPage = () => {
     try {
       const token = localStorage.getItem('token'); // Obtener el token del localStorage
       const isAuthenticated = !!token; // Verificar si el usuario está autenticado
-  
+
       // Construir headers
       const headers = {
         "Content-Type": "application/json",
       };
-  
+
       // Si el token está presente, agregarlo a las cabeceras
       if (isAuthenticated) {
         headers["Authorization"] = `Bearer ${token}`;
       }
-  
+
       // Elegir el endpoint según autenticación
       const endpoint = isAuthenticated
         ? `/api/mesas/${mesaId}/itemsAuth`
         : `/api/mesas/${mesaId}/items`;
-  
+
       const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
-  
+
       // Realizar la solicitud POST
       const response = await Axios.post(
         url,
@@ -57,46 +91,43 @@ const MenuPage = () => {
           headers: headers,
         }
       );
-  
+
       console.log("Producto añadido a la comanda:", response.data);
     } catch (error) {
       console.error("Error al añadir producto:", error.response?.data || error.message);
     }
   };
-  
+
   return (
     <>
       <Header />
 
       <div className="p-4 mt-25 flex flex-col items-center">
-        {/* Titulo de la sección Recomendación de la Casa */}
-        <SeccionTitulo titulo="Recomendación de la casa" />
-
-
+        <SeccionTitulo titulo={textos.recomendacion[lang]} />
 
         {/* Iteramos dentro de cada categoria*/}
-        <SeccionTitulo titulo="Primeros" slug="primeros"/>
+        <SeccionTitulo titulo={textos.primeros[lang]} slug="primeros" />
         {menu
           .filter(item => item.categoria_id === 1)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
-        <SeccionTitulo titulo="Segundos" slug="segundos"/>
+        <SeccionTitulo titulo={textos.segundos[lang]}slug="segundos" />
         {menu
           .filter(item => item.categoria_id === 2)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
-        <SeccionTitulo titulo="Postres" slug="postres"/>
+        <SeccionTitulo titulo={textos.postres[lang]} slug="postres" />
         {menu
           .filter(item => item.categoria_id === 4)
           .map(item => (
             <Item key={item.id} producto={item} onAddToCart={handleAddToCart} />
           ))}
 
-        <SeccionTitulo titulo="Bebidas" slug="bebidas"/>
+        <SeccionTitulo titulo={textos.bebidas[lang]} slug="bebidas" />
         {menu
           .filter(item => item.categoria_id === 3)
           .map(item => (

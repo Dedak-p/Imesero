@@ -9,10 +9,34 @@ import Axios from "axios";
 
 const CarritoPage = () => {
   const { mesaId } = useContext(AppContext);
+  const {lang} = useContext(AppContext);
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem('token'); 
+
+  const textos = {
+    carrito :{
+      es: "Este es tu carrito",
+      en: "This is your cart",
+      ca: "Aquest és el teu carretó"
+    },
+
+    precios :{
+      es: "Precio Total",
+      en: "Total Price",
+      ca: "Preu Total"
+
+    },
+
+    confirmacion:{
+      es:"Confirmar Comanda",
+      en:"Confirm Order",
+      ca: "Confirmar Comanda"
+    }
+
+
+  }
   useEffect(() => {
     if (!mesaId) {
       setError("No se ha asignado un ID de mesa.");
@@ -181,7 +205,7 @@ const CarritoPage = () => {
     <>
       <Header />
       <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white bg-[#012340]">
-        <SeccionTitulo titulo="Este es tu carrito" />
+        <SeccionTitulo titulo={textos.carrito[lang]} />
         <div className="mt-4">
           {items.length > 0 ? (
             items.map((item) => {
@@ -203,7 +227,7 @@ const CarritoPage = () => {
           )}
         </div>
 
-        <SeccionTitulo titulo={`Precio total: ${calcularTotal().toFixed(2)} €`} />
+        <SeccionTitulo titulo={`${textos.precios[lang]}:  ${calcularTotal().toFixed(2)} €`} />
 
         <div className="mt-6">
           <button
@@ -213,7 +237,7 @@ const CarritoPage = () => {
           }}
           className="bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-120 px-8 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-30"
           >
-          Confirmar Comanda
+          {textos.confirmacion[lang]}
         </button>
       </div>
     </div >
