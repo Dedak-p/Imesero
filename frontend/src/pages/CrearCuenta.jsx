@@ -4,8 +4,7 @@ import { AppContext } from '../context/AppContext';
 
 function CrearCuenta() {
     const navigate = useNavigate();
-    const  {setToken} = useContext(AppContext);
-    
+    const { setLang, lang, setToken } = useContext(AppContext);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [password2, setPassword2] = useState('');
@@ -22,14 +21,14 @@ function CrearCuenta() {
             return;
         }
 
-        if(password !== password2){
+        if (password !== password2) {
             setErrorMessage('⚠️ Las contraeñas no coinciden');
             return;
         }
         setErrorMessage('');
 
         try {
-            const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/register` , {
+            const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,13 +70,70 @@ function CrearCuenta() {
 
     };
 
+    const textos = {
+        crear: {
+            es: "CREAR CUENTA",
+            en: "CREATE ACCOUNT",
+            ca: "CREAR COMPTE"
+        },
+        email: {
+            es: "CORREO",
+            en: "EMAIL",
+            ca: "CORREU"
+        },
+
+        password: {
+
+            es: "CONTRASEÑA",
+            en: "PASSWORD",
+            ca: "CONTRASENYA"
+        },
+
+        repite: {
+            es: "REPITE TU CONTRASEÑA",
+            en: "REPEAT YOUR PASSWORD",
+            ca: "REPETEIX LA TEVA CONTRASENYA"
+        }
+
+
+
+    }
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#012340] text-white font-montserrat p-6">
-
+            <div className="absolute top-4 right-4 flex gap-3">
+                <button
+                    onClick={() => setLang('es')}
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'es'
+                        ? 'bg-white text-[#012340] border-white'
+                        : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+                        }`}
+                >
+                    ES
+                </button>
+                <button
+                    onClick={() => setLang('ca')}
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'ca'
+                        ? 'bg-white text-[#012340] border-white'
+                        : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+                        }`}
+                >
+                    CA
+                </button>
+                <button
+                    onClick={() => setLang('en')}
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'en'
+                        ? 'bg-white text-[#012340] border-white'
+                        : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+                        }`}
+                >
+                    EN
+                </button>
+            </div>
             {/* TÍTULO */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold italic text-center mb-16 
                           [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
-                CREAR CUENTA
+                {textos.crear[lang]}
             </h1>
 
             {/* FORMULARIO */}
@@ -88,7 +144,7 @@ function CrearCuenta() {
                 {/* EMAIL */}
                 <div className="mb-4">
                     <label className="text-white text-sm font-bold mb-2 block text-left" htmlFor="email">
-                        EMAIL
+                        {textos.email[lang]}
                     </label>
                     <input
                         className="shadow-md border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
@@ -105,7 +161,7 @@ function CrearCuenta() {
                 {/* PASSWORD */}
                 <div className="mb-6">
                     <label className="text-white text-sm font-bold mb-2 block text-left" htmlFor="password">
-                        PASSWORD
+                        {textos.password[lang]}
                     </label>
                     <input
                         className="shadow-md border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
@@ -122,7 +178,7 @@ function CrearCuenta() {
                 {/* REPETIR PASSWORD */}
                 <div className="mb-6">
                     <label className="text-white text-sm font-bold mb-2 block text-left" htmlFor="password2">
-                        REPITE TU PASSWORD
+                        {textos.repite[lang]}
                     </label>
                     <input
                         className="shadow-md border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
@@ -144,7 +200,7 @@ function CrearCuenta() {
                     <button className="bg-white w-full text-[#7646e5] border border-[#7646e5] font-bold py-3 px-6 text-lg 
                                        rounded-xl transition-transform duration-300 hover:scale-130"
                         type="submit">
-                        CREAR CUENTA
+                        {textos.crear[lang]}
                     </button>
                 </div>
 

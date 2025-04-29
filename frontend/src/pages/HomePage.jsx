@@ -10,9 +10,8 @@ import useApiCall from "../hooks/useApiCall.js";
 function Home() {
     localStorage.clear();
     const navigate = useNavigate();
-    const { user, setUser, token, setToken } = useContext(AppContext);
+    const { user, setUser, token, setToken, lang, setLang } = useContext(AppContext);
     const { data: mesas = [], loading, error } = useApiCall(`${window.location.protocol}//${window.location.hostname}:8000/api/mesas`);
-    
     // Función para cerrar sesión
     async function handleLogout(e) {
         e.preventDefault();
@@ -48,11 +47,89 @@ function Home() {
             console.error('Error en la solicitud:', error);
         }
     }
+
+
+    const textos = {
+        bienvenida: {
+            es: user => `Hola, ${user ? user.name + ". Bienvenido de vuelta!" : "bienvenido a nuestro software de gestión de comandas."}`,
+            ca: user => `Hola, ${user ? user.name + ". Benvingut de nou!" : "benvingut al nostre programari de gestió de comandes."}`,
+            en: user => `Hi, ${user ? user.name + ". Welcome back!" : "welcome to our order management software."}`
+        },
+        seleccionMesa: {
+            es: "Selecciona tu mesa",
+            ca: "Selecciona la teva taula",
+            en: "Select your table"
+        },
+        cargandoMesas: {
+            es: "Cargando mesas…",
+            ca: "Carregant taules…",
+            en: "Loading tables…"
+        },
+        errorMesas: {
+            es: "Error cargando mesas. Inténtalo de nuevo.",
+            ca: "Error en carregar les taules. Torna-ho a intentar.",
+            en: "Error loading tables. Please try again."
+        },
+        capacidad: {
+            es: "Capacidad",
+            ca: "Capacitat",
+            en: "Capacity"
+        },
+        ocupada: {
+            es: "Ocupada",
+            ca: "Ocupada",
+            en: "Occupied"
+        },
+        libre: {
+            es: "Libre",
+            ca: "Lliure",
+            en: "Free"
+        },
+        logout: {
+            es: "CERRAR SESIÓN",
+            ca: "TANCAR SESSIÓ",
+            en: "LOGOUT"
+        },
+        login: {
+            es: "USA TU CUENTA",
+            ca: "UTILITZA EL TEU COMPTE",
+            en: "USE YOUR ACCOUNT"
+        }
+    };
     return (
         <>
             {/* Contenedor principal con fondo y altura completa */}
             <div className="min-h-screen flex flex-col items-center justify-center bg-[#012340] p-6 md:p-12 font-montserrat ">
-                {/* Título  */}
+
+                <div className="absolute top-4 right-4 flex gap-3">
+                    <button
+                        onClick={() => setLang('es')}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'es'
+                            ? 'bg-white text-[#012340] border-white'
+                            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+                            }`}
+                    >
+                        ES
+                    </button>
+                    <button
+                        onClick={() => setLang('ca')}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'ca'
+                            ? 'bg-white text-[#012340] border-white'
+                            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+                            }`}
+                    >
+                        CA
+                    </button>
+                    <button
+                        onClick={() => setLang('en')}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'en'
+                            ? 'bg-white text-[#012340] border-white'
+                            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+                            }`}
+                    >
+                        EN
+                    </button>
+                </div>
                 <h1 className="text-6xl lg:text-7xl font-bold text-white italic text-center mb-12 
                                    [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
                     IMESERO
@@ -63,46 +140,42 @@ function Home() {
 
                     {/* Texto de bienvenida */}
                     <p className="text-2xl lg:text-3xl font-bold text-white text-center max-w-md lg:max-w-lgmb-10 italic leading-relaxed mb-2">
-                        {user ?
-                            (`Hola, ${user.name}. Bienvenido de vuelta!`)
-                            :
-                            ("Hola, bienvenido a nuestro software de gestión de comandas.")
-                        }
+                        {textos.bienvenida[lang](user)}
                     </p>
 
                     {/* Selección de mesa */}
                     <section className="w-full max-w-4xl mb-12">
                         <h2 className="text-white text-3xl font-semibold mb-4 text-center">
-                        Selecciona tu mesa
+                            {textos.seleccionMesa[lang]}
                         </h2>
 
-                        {loading && <p className="text-white text-center">Cargando mesas…</p>}
+                        {loading && <p className="text-white text-center">{textos.cargandoMesas[lang]}</p>}
                         {error && (
-                        <p className="text-red-400 text-center">
-                            Error cargando mesas. Inténtalo de nuevo.
-                        </p>
+                            <p className="text-red-400 text-center">
+                                {textos.errorMesas[lang]}
+                            </p>
                         )}
 
                         {!loading && !error && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {mesas.map((mesa) => (
-                            <button
-                                key={mesa.id}
-                                disabled={mesa.ocupada}
-                                onClick={() => navigate(`/menu/${mesa.id}`)}
-                                className={`
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {mesas.map((mesa) => (
+                                    <button
+                                        key={mesa.id}
+                                        disabled={mesa.ocupada}
+                                        onClick={() => navigate(`/menu/${mesa.id}`)}
+                                        className={`
                                 p-4 border rounded-xl text-center
                                 ${mesa.ocupada
-                                    ? "bg-gray-500 cursor-not-allowed text-gray-200"
-                                    : "bg-green-300 hover:bg-green-400 text-gray-800 cursor-pointer"}
+                                                ? "bg-gray-500 cursor-not-allowed text-gray-200"
+                                                : "bg-green-300 hover:bg-green-400 text-gray-800 cursor-pointer"}
                                 `}
-                            >
-                                <h3 className="text-xl font-bold">{mesa.codigo}</h3>
-                                <p>Capacidad: {mesa.capacidad}</p>
-                                <p>{mesa.ocupada ? "Ocupada" : "Libre"}</p>
-                            </button>
-                            ))}
-                        </div>
+                                    >
+                                        <h3 className="text-xl font-bold">{mesa.codigo}</h3>
+                                        <p>{textos.capacidad[lang]} {mesa.capacidad}</p>
+                                        <p>{mesa.ocupada ? textos.ocupada[lang] : textos.libre[lang]}</p>
+                                    </button>
+                                ))}
+                            </div>
                         )}
                     </section>
                     {/* Contenedor de botones */}
@@ -113,14 +186,14 @@ function Home() {
                                 className="bg-white text-[#7646e5] border border-[#7646e5] font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
                                 onClick={handleLogout}
                             >
-                                LOGOUT
+                                {textos.logout[lang]}
                             </button>
                         ) : (
                             <button
                                 className="bg-white text-[#7646e5] border border-[#7646e5] font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
                                 onClick={() => navigate('/login')}
                             >
-                                USA TU CUENTA
+                                {textos.login[lang]}
                             </button>
                         )
                         }
