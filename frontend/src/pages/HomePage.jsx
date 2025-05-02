@@ -182,12 +182,37 @@ function Home() {
                     <div className="flex flex-col mb-16 md:flex-row gap-6">
 
                         {user ? (
-                            <button
-                                className="bg-white text-[#7646e5] border border-[#7646e5] font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
-                                onClick={handleLogout}
-                            >
-                                {textos.logout[lang]}
-                            </button>
+                            <div className="flex flex-col md:flex-row gap-6">
+                                <button
+                                    className="bg-white text-[#7646e5] border border-[#7646e5] font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
+                                    onClick={handleLogout}
+                                >
+                                    {textos.logout[lang]}
+                                </button>
+
+                                {user.role === 'admin' && (
+                                    <>
+                                        <button
+                                            onClick={() => navigate("/crearProducto")}
+                                            className="bg-white text-green-600 border border-green-600 font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
+                                        >
+                                            Crear Producto
+                                        </button>
+                                        <button
+                                            onClick={() => navigate("/modificarProducto")}
+                                            className="bg-white text-yellow-600 border border-yellow-600 font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
+                                        >
+                                            Modificar Producto
+                                        </button>
+                                        <button
+                                            onClick={() => navigate("/eliminarProducto")}
+                                            className="bg-white text-red-600 border border-red-600 font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
+                                        >
+                                            Eliminar Producto
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         ) : (
                             <button
                                 className="bg-white text-[#7646e5] border border-[#7646e5] font-bold px-10 py-4 rounded-xl transition-transform duration-300 hover:scale-120"
@@ -195,8 +220,7 @@ function Home() {
                             >
                                 {textos.login[lang]}
                             </button>
-                        )
-                        }
+                        )}
                     </div>
 
                 </div>

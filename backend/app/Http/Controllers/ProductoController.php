@@ -26,7 +26,7 @@ class ProductoController extends Controller
     {
         $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagen' => 'nullable|string',
             'nombre_es' => 'required|string|max:255',
             'nombre_ca' => 'required|string|max:255',
             'nombre_en' => 'required|string|max:255',
@@ -87,4 +87,27 @@ class ProductoController extends Controller
         $producto->delete();
         return response()->json(['message' => 'Producto eliminado con éxito.'], 200);
     }
+/**
+ * Sube un archivo de imagen al directorio storage/app/public/Imagenes/menu
+ * y devuelve la ruta pública.
+ */
+public function uploadImagen(Request $request)
+{
+    // Validar que venga un archivo de imagen
+    $request->validate([
+        'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // Guardar la imagen en storage/app/public/Imagenes/menu
+    $path = $request->file('imagen')
+                    ->store('Imagenes/menu', 'public');
+
+    // Construir la ruta pública accesible vía /storage/...
+    $publicPath = "/storage/{$path}";
+
+    return response()->json([
+        'ruta' => $publicPath
+    ], 201);
+}
+
 }

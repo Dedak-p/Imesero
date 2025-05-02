@@ -10,7 +10,7 @@ const ItemCarrito = ({ productoId, cantidad, estado, pagada, onAdd, onRemove }) 
     loading,
     error,
     refetch
-  } = useApiCall(`/productos/${productoId}`, "get", null, [productoId]);
+  } = useApiCall(`http://${window.location.hostname}:8000/api/productos/${productoId}`, "get", null, [productoId]);
 
   const producto = productoArr[0];
 

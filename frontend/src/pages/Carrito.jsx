@@ -41,7 +41,7 @@ const CarritoPage = () => {
     loading: loadingMesa,
     error: errorMesa,
     refetch: refetchMesa
-  } = useApiCall(`/mesas/${mesaObtenida}`, "get", null, [mesaObtenida]);
+  } = useApiCall(`http://${window.location.hostname}:8000/api/mesas/${mesaObtenida}`, "get", null, [mesaObtenida]);
 
   const mesaData = mesaDataArr[0] || {};
   const { mesa, comanda } = mesaData;
@@ -80,7 +80,7 @@ const CarritoPage = () => {
         if (token) headers.Authorization = `Bearer ${token}`;
 
         await apiClient.post(
-          `/mesas/${mesaObtenida}/items`,
+          `http://${window.location.hostname}:8000/api/mesas/${mesaObtenida}/items`,
           { producto_id: productoId, cantidad: delta },
           { headers }
         );
@@ -103,7 +103,7 @@ const CarritoPage = () => {
       setConfirming(true);
       const headers = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
-      await apiClient.patch(`/mesas/${mesaObtenida}/confirm`, {}, { headers });
+      await apiClient.patch(`http://${window.location.hostname}:8000/api/mesas/${mesaObtenida}/confirm`, {}, { headers });
       navigate("/pagar");
     } catch (e) {
       console.error("Error al confirmar comanda:", e);

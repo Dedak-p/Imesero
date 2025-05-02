@@ -75,6 +75,7 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     Route::apiResource('mesas',         MesaController::class)->only(['store','update','destroy']);
     Route::apiResource('categorias',    CategoriaController::class)->only(['store','update','destroy']);
     Route::apiResource('productos',     ProductoController::class)->only(['store','update','destroy']);
+    Route::post('productos/subirImagen', [ProductoController::class, "uploadImagen"]);
     //Route::apiResource('comandas',      ComandaController::class)->only(['index','store','update','destroy']);
     Route::apiResource('estados-items', EstadoPedidoItemController::class)->only(['store','update','destroy']);
     Route::put('comandas/{comanda}/cerrar', [ComandaController::class,'cerrar']);
@@ -83,8 +84,8 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     
     Route::get('comandas',                 [ComandaController::class,'index']);
     Route::get('comandas/{comanda}',       [ComandaController::class,'show']);
-    Route::put('comandas/{comanda}', [ComandaController::class, 'update']);
-    Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
+   
+    
     // Gestión de comanda-items: avanzar estados (cocina, camino, entregado…) y eliminar
     Route::put('comanda-items/{comandaItem}',    [ComandaItemController::class,'update']);
     Route::delete('comanda-items/{comandaItem}', [ComandaItemController::class,'destroy']);
@@ -97,3 +98,5 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     Route::apiResource('metodos-pago', MetodoPagoController::class);
     Route::apiResource('pagos',        PagoController::class,)->only(['index','show','update','destroy']);
 });
+Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
+Route::put('comandas/{comanda}', [ComandaController::class, 'update']);
