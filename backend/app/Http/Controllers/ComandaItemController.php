@@ -57,13 +57,20 @@ class ComandaItemController extends Controller
             ->latest()
             ->first();
 
+        $estadoBorrador = EstadoComanda::where('nombre', 'borrador')->value('id');
+
+        // Si no se encuentra el estado, puedes manejarlo con un valor predeterminado o lanzar una excepción
+        if (!$estadoBorrador) {
+            throw new \Exception('Estado "borrador" no encontrado.');
+        }
+
         // Si no se encuentra ninguna, se crea una nueva comanda en estado borrador
         if (!$comanda) {
             $comanda = Comanda::create([
                 'mesa_id' => $mesa->id,
                 'user_id' => auth()->id(),
                 'anonimo' => auth()->guest(),
-                'estado_comanda_id' => 1,
+                'estado_comanda_id' => $estadoBorrador,
             ]);
             $mesa->update(['ocupada' => true]);
         }
@@ -89,12 +96,19 @@ class ComandaItemController extends Controller
             return response()->json($existingDraftItem->fresh()->load('producto'), 200);
         }
 
+        $estadoPedidoBorrador = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id');
+
+        // Si no se encuentra el estado, puedes manejarlo con un valor predeterminado o lanzar una excepción
+        if (!$estadoPedidoBorrador) {
+            throw new \Exception('Estado item "por confirmar" no encontrado.');
+        }
+
         // Si no existe, se crea un nuevo ítem con estado borrador
         $item = $comanda->items()->create([
             'producto_id' => $producto->id,
             'cantidad' => $data['cantidad'],
             'precio_unitario' => $producto->precio,
-            'estado_item_id' => 1,
+            'estado_item_id' => $estadoPedidoBorrador,
         ]);
 
         if ($item->cantidad <= 0) {
@@ -124,13 +138,20 @@ class ComandaItemController extends Controller
             ->latest()
             ->first();
 
+        $estadoBorrador = EstadoComanda::where('nombre', 'borrador')->value('id');
+
+        // Si no se encuentra el estado, puedes manejarlo con un valor predeterminado o lanzar una excepción
+        if (!$estadoBorrador) {
+            throw new \Exception('Estado "borrador" no encontrado.');
+        }
+
         // Si no se encuentra ninguna, se crea una nueva comanda en estado borrador
         if (!$comanda) {
             $comanda = Comanda::create([
                 'mesa_id' => $mesa->id,
                 'user_id' => auth()->id(),
                 'anonimo' => auth()->guest(),
-                'estado_comanda_id' => 1,
+                'estado_comanda_id' => $estadoBorrador,
             ]);
             $mesa->update(['ocupada' => true]);
         }
@@ -156,12 +177,19 @@ class ComandaItemController extends Controller
             return response()->json($existingDraftItem->fresh()->load('producto'), 200);
         }
 
+        $estadoPedidoBorrador = EstadoPedidoItem::where('nombre', 'por confirmar')->value('id');
+
+        // Si no se encuentra el estado, puedes manejarlo con un valor predeterminado o lanzar una excepción
+        if (!$estadoPedidoBorrador) {
+            throw new \Exception('Estado item "por confirmar" no encontrado.');
+        }
+
         // Si no existe, se crea un nuevo ítem con estado borrador
         $item = $comanda->items()->create([
             'producto_id' => $producto->id,
             'cantidad' => $data['cantidad'],
             'precio_unitario' => $producto->precio,
-            'estado_item_id' => 1,
+            'estado_item_id' => $estadoPedidoBorrador,
         ]);
 
         if ($item->cantidad <= 0) {

@@ -58,7 +58,7 @@ Route::get('estado-comandas/{id}',     [EstadoComandaController::class,'show']);
 // Flujo Cliente: añadir primer ítem (crea/recupera comanda y ocupa mesa)
 Route::post('mesas/{mesa}/items', [ComandaItemController::class,'store'])->name('mesas.items.store');
 //Autenticado
-Route::middleware('auth:sanctum')->post('/mesas/{mesa}/itemsAuth', [ComandaItemController::class, 'storeAuth']);
+Route::middleware('auth:sanctum')->post('/mesas/{mesa}/itemsAuth', [ComandaItemController::class, 'storeAuth'])->name('mesas.items.storeAuth');
 
 
 // Cliente confirma SU ítem (por confirmar → confirmado) y dispara comanda borrador → pedido
