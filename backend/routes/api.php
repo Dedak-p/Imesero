@@ -74,6 +74,7 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
     // CRUD completo de mesas, categorías, productos, comandas y estados-items
     Route::apiResource('mesas',         MesaController::class)->only(['store','update','destroy']);
     Route::apiResource('categorias',    CategoriaController::class)->only(['store','update','destroy']);
+   
     Route::apiResource('productos',     ProductoController::class)->only(['store','update','destroy']);
     Route::post('productos/subirImagen', [ProductoController::class, "uploadImagen"]);
     //Route::apiResource('comandas',      ComandaController::class)->only(['index','store','update','destroy']);
@@ -100,3 +101,5 @@ Route::middleware(['auth:sanctum',EnsureUserIsAdmin::class])->group(function(){
 });
 Route::get('comandas/{comanda}/items', [ComandaItemController::class,'index']);
 Route::put('comandas/{comanda}', [ComandaController::class, 'update']);
+
+

@@ -48,7 +48,25 @@ function CrearProducto() {
                 imagen: rutaImagen,
                 categoria_id: mapearCateg(formData.categoria),
             };
-            crearProducto(productoData);
+            await crearProducto(productoData);
+
+            // Limpiar el formulario después de crear el producto
+            setFormData({
+                nombre_es: '',
+                nombre_ca: '',
+                nombre_en: '',
+                descripcion_es: '',
+                descripcion_ca: '',
+                descripcion_en: '',
+                ingredientes_es: '',
+                ingredientes_ca: '',
+                ingredientes_en: '',
+                precio: '',
+                categoria: '',
+                imagen: null,
+                recomendada: false,
+            });
+
         } catch (err) {
             console.error('Error al subir la imagen', err);
         }
@@ -143,6 +161,7 @@ function CrearProducto() {
                         key={`nombre_${lang}`}
                         name={`nombre_${lang}`}
                         placeholder={`Nombre (${lang})`}
+                        value={formData[`nombre_${lang}`]}
                         onChange={handleChange}
                         className="w-full p-3 bg-transparent border border-blue-500 rounded text-white"
                         required
@@ -154,6 +173,7 @@ function CrearProducto() {
                         key={`descripcion_${lang}`}
                         name={`descripcion_${lang}`}
                         placeholder={`Descripción (${lang})`}
+                        value={formData[`descripcion_${lang}`]}
                         onChange={handleChange}
                         className="w-full p-3 bg-transparent border border-blue-500 rounded text-white"
                         rows={2}
@@ -166,6 +186,7 @@ function CrearProducto() {
                         key={`ingredientes_${lang}`}
                         name={`ingredientes_${lang}`}
                         placeholder={`Ingredientes (${lang})`}
+                        value={formData[`ingredientes_${lang}`]}
                         onChange={handleChange}
                         className="w-full p-3 bg-transparent border border-blue-500 rounded text-white"
                         rows={2}
@@ -176,6 +197,7 @@ function CrearProducto() {
                 <input
                     type="number"
                     name="precio"
+                    value={formData.precio}
                     placeholder="Precio (€)"
                     step="0.01"
                     onChange={handleChange}
@@ -216,6 +238,7 @@ function CrearProducto() {
                     <input
                         type="checkbox"
                         name="recomendada"
+                        checked={formData.recomendada}
                         onChange={handleChange}
                         className="w-5 h-5"
                     />

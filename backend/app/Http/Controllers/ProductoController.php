@@ -93,21 +93,54 @@ class ProductoController extends Controller
  */
 public function uploadImagen(Request $request)
 {
-    // Validar que venga un archivo de imagen
-    $request->validate([
-        'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
+    // Validación de la imagen con captura de posibles errores
+    try {
+        $request->validate([
+            'imagen' => 'required|image|mimes:jpeg,png,jpg,gif',
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'error' => 'Validación fallida',
+            'detalles' => $e->errors()
+        ], 422);
+    }
 
-    // Guardar la imagen en storage/app/public/Imagenes/menu
-    $path = $request->file('imagen')
-                    ->store('Imagenes/menu', 'public');
+    // Verifica si la imagen está presente
+    if (!$request->hasFile('imagen')) {
+        return response()->json([
+            'error' => 'No se ha detectado ningún archivo de imagen en la solicitud'
+        ], 400);
+    }
 
-    // Construir la ruta pública accesible vía /storage/...
-    $publicPath = "/storage/{$path}";
+    // Verifica si el archivo es válido
+    if (!$request->file('imagen')->isValid()) {
+        return response()->json([
+            'error' => 'El archivo de imagen subido no es válido o está corrupto'
+        ], 400);
+    }
 
-    return response()->json([
-        'ruta' => $publicPath
-    ], 201);
+    try {
+        // Intenta guardar la imagen en la ruta especificada
+        $ruta = $request->file('imagen')->store('Imagenes/menu', 'public');
+
+        // Comprueba si la ruta se ha generado correctamente
+        if (!$ruta) {
+            return response()->json([
+                'error' => 'Error desconocido al almacenar la imagen'
+            ], 500);
+        }
+
+        // Éxito: devolver la ruta
+        return response()->json([
+            'mensaje' => 'Imagen subida correctamente',
+            'ruta' => '/storage/' . $ruta
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Excepción al guardar la imagen',
+            'mensajeExcepcion' => $e->getMessage()
+        ], 500);
+    }
 }
 
 }
