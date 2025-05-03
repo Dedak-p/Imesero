@@ -77,7 +77,7 @@ const Header = () => {
 
 
         <button className={`cursor-pointer ${statusComand > 3 ? "" : "hidden"}`}
-        onClick={() => navigate("/seguimiento" + mesaId)}>
+        onClick={() => navigate("/seguimiento/" + mesaId)}>
           <img src={Seguimiento} alt="Icono personalizado" className="w-10 h-7" />
         </button>
         

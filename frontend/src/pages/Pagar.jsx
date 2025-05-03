@@ -105,7 +105,7 @@ const PagarPage = () => {
                 method: "PUT",
                 headers,
                 body: JSON.stringify({
-                    estado_comanda_id: 5 // FIXME: No se porque si se pone 4 "pagado", la comanda se desliga de la mesa.
+                    estado_comanda_id: 4  // FIXME: No se porque si se pone 4 "pagado", la comanda se desliga de la mesa.
                 }),
             });
 
@@ -165,7 +165,7 @@ const PagarPage = () => {
 
                     onClick={async () => {
                         await pagarComanda();
-                        navigate("/pagar");
+                        navigate("/seguimiento");
                     }}
                     className="mt-8 bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-110 px-10"
                 >
