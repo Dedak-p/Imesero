@@ -9,6 +9,7 @@ use App\Models\EstadoComanda;
 use App\Models\ComandaItem;
 use App\Models\User;
 use App\Models\Producto;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Test;
