@@ -76,7 +76,7 @@ function CrearProducto() {
         const data = new FormData();
         data.append('imagen', imagen);
 
-        const response = await fetch(`http://192.168.1.116:8000/api/productos/subirImagen`, {
+        const response = await fetch(`http://${window.location.hostname}:8000/api/productos/subirImagen`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -114,7 +114,7 @@ function CrearProducto() {
         console.log('Enviando producto:', productData);
 
         try {
-            const response = await fetch(`http://192.168.1.116:8000/api/productos`, {
+            const response = await fetch(`http://${window.location.hostname}:8000/api/productos`, {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json',
@@ -216,11 +216,11 @@ function CrearProducto() {
                     className="w-full p-3 bg-transparent border border-blue-500 rounded text-white focus:outline-none focus:ring focus:border-blue-300"
                     required
                 >
-                    <option value="">Selecciona una categoría</option>
-                    <option value="Primeros">Primeros</option>
-                    <option value="Segundos">Segundos</option>
-                    <option value="Bebidas">Bebidas</option>
-                    <option value="Postres">Postres</option>
+                    <option className="bg-[#012340] text-white" value="">Selecciona una categoría</option>
+                    <option className="bg-[#012340] text-white" value="Primeros">Primeros</option>
+                    <option className="bg-[#012340] text-white" value="Segundos">Segundos</option>
+                    <option className="bg-[#012340] text-white" value="Bebidas">Bebidas</option>
+                    <option className="bg-[#012340] text-white" value="Postres">Postres</option>
                 </select>
 
                 <div>

@@ -19,8 +19,7 @@ const ItemCarrito = ({ productoId, cantidad, estado, pagada, onAdd, onRemove }) 
   }
 
   return (
-    <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C]">
-
+    <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C]">
       {loading ? (
         <div className="p-4 text-center text-white">
           Cargando producto…
@@ -72,9 +71,9 @@ const ItemCarrito = ({ productoId, cantidad, estado, pagada, onAdd, onRemove }) 
           </div>
         </>
       )}
-
     </div>
-  );
+);
+
 };
 
 export default ItemCarrito;

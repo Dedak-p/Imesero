@@ -10,6 +10,7 @@ import Menu from "./pages/Menu.jsx";
 import UsuarioPage from "./pages/Usuario.jsx";
 import PagarPage from "./pages/Pagar.jsx";
 import CrearProducto  from './pages/CrearProducto.jsx'
+import EliminarProductos from './pages/EliminarProducto.jsx'
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
       <Route path = "/pagar" element={<PagarPage />} />
       <Route path="/menu" element={<Navigate to="/" replace />} />
       <Route path="/crearProducto" element={<CrearProducto />} />
+      <Route path="/eliminarProducto" element={<EliminarProductos />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
 

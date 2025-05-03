@@ -3,7 +3,7 @@ import { AppContext } from "../context/AppContext";
 const Item = ({ producto, onAddToCart }) => {
   const { lang } = useContext(AppContext);
   return (
-    <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto h-72 border border-gray-300 rounded-lg overflow-hidden shadow-md">
+    <div className="flex flex-col justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto min-h-72 border border-gray-300 rounded-lg overflow-hidden shadow-md">
       <div className="flex flex-1">
         <div className="w-2/5 bg-gray-200 flex items-center justify-center">
           <img
