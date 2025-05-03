@@ -121,7 +121,7 @@ public function uploadImagen(Request $request)
 
     try {
         // Intenta guardar la imagen en la ruta especificada
-        $ruta = $request->file('imagen')->store('Imagenes/menu', 'public');
+        $ruta = $request->file('imagen')->store('Imagenes/Menu', 'public');
 
         // Comprueba si la ruta se ha generado correctamente
         if (!$ruta) {
@@ -133,7 +133,7 @@ public function uploadImagen(Request $request)
         // Éxito: devolver la ruta
         return response()->json([
             'mensaje' => 'Imagen subida correctamente',
-            'ruta' => '/storage/' . $ruta
+            'ruta' => $ruta
         ]);
     } catch (\Exception $e) {
         return response()->json([

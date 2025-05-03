@@ -7,8 +7,7 @@ const Item = ({ producto, onAddToCart }) => {
       <div className="flex flex-1">
         <div className="w-2/5 bg-gray-200 flex items-center justify-center">
           <img
-            src={producto.imagen}
-            alt={producto.nombre_lang}
+            src={`http://${window.location.hostname}:8000/storage/${producto.imagen}`} alt={producto.nombre_lang}
             className="max-w-full max-h-full"
           />
         </div>
