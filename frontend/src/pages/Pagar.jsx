@@ -6,6 +6,7 @@ import ItemConfirmado from "../components/ItemConfirmado";
 import { AppContext } from "../context/AppContext";
 
 const PagarPage = () => {
+    const { lang } = useContext(AppContext);
     const { mesaId } = useContext(AppContext);
     const { setStatusComand } = useContext(AppContext);
     const [itemsConfirmados, setItemsConfirmados] = useState([]);
@@ -118,12 +119,31 @@ const PagarPage = () => {
             console.error("Error al pagar la comanda:", error);
         }
     };
+    const textos = {
+        resumen :{
+            es: "Resumen de tu Comanda Confirmada",
+            en: "Sumary of your Confirmed Order",
+            ca: "Resum de la teva Comanda Confirmada"
+        },
+        pagar :{
+            es: "Total a pagar",
+            en: "Total to pay",
+            ca: "Total a pagar"
+        },
 
+        proceder:{
+            es: "Proceder al pago",
+            en: "Proceed to Payment",
+            ca: "Procedir al pagament"
+
+        }
+
+    }
     return (
         <>
             <Header />
-            <div className="min-h-screen p-4 mt-24 text-white bg-[#012340] text-center">
-                <SeccionTitulo titulo="Resumen de tu Comanda Confirmada" />
+            <div className="min-h-screen p-4 mt-24 text-white bg-[#012340]  text-center">
+                <SeccionTitulo titulo={textos.resumen[lang]} />
 
                 <div className="mt-6">
                     {itemsConfirmados.length > 0 ? (
@@ -139,7 +159,7 @@ const PagarPage = () => {
                     )}
                 </div>
 
-                <SeccionTitulo titulo={`Total a pagar: ${calcularTotal().toFixed(2)} €`} />
+                <SeccionTitulo titulo={`${textos.pagar[lang]}:    ${calcularTotal().toFixed(2)} €`} />
 
                 <button
 
@@ -149,7 +169,7 @@ const PagarPage = () => {
                     }}
                     className="mt-8 bg-white text-[#7646e5] border border-[#7646e5] font-bold py-4 rounded-xl transition-transform duration-300 hover:scale-110 px-10"
                 >
-                    Proceder al Pago
+                    {textos.proceder[lang]}
                 </button>
             </div>
         </>

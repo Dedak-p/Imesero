@@ -11,6 +11,8 @@ tags:
     description: Autenticación y usuario
   - name: Cliente
     description: Operaciones de cliente (anónimos o autenticados)
+  - name: Comanda Admin
+    description: Operaciones simples de admin para operar con las comandas
   - name: Admin
     description: Operaciones de administrador
   - name: Front
@@ -357,7 +359,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/comandaId'
     get:
-      tags: [Front]
+      tags: [Admin]
       summary: Listar ítems de una comanda
       responses:
         '200':
@@ -369,8 +371,64 @@ paths:
                 items:
                   $ref: '#/components/schemas/ComandaItemResponse'
 
-  # Ítems de comanda
+  /comandas/{comanda}/confirm:
+    put:
+      tags:
+        - Comanda Admin
+      summary: Confirmar una comanda en estado “pedido”, Habilita el pago de los clientes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: comanda
+          in: path
+          description: ID de la comanda a confirmar
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comanda confirmada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comanda'
+        '422':
+          description: No está en estado válido para confirmar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /comandas/{comanda}/cerrar:
+    put:
+      tags:
+        - Comanda Admin
+      summary: Cerrar una comanda, solo se puede si la comanda esta pagada. Desocupa la mesa
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: comanda
+          in: path
+          description: ID de la comanda a cerrar
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comanda cerrada y mesa liberada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comanda'
+        '422':
+          description: No está en estado válido para cerrar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  # Ítems de comanda
   /comanda-items/{itemId}:
     parameters:
       - $ref: '#/components/parameters/itemId'
@@ -537,10 +595,8 @@ paths:
         '200':
           description: Array de pagos
     post:
-      tags: [Admin]
-      summary: Registrar pago
-      security:
-        - bearerAuth: []
+      tags: [Cliente]
+      summary: Pagar productos de una comanda
       requestBody:
         required: true
         content:
@@ -550,6 +606,7 @@ paths:
       responses:
         '201':
           description: Pago registrado
+
 
   /pagos/{pagoId}:
     parameters:
@@ -981,23 +1038,101 @@ components:
         updated_at:
           type: string
           format: date-time
-
+          
+          
     PagoCreate:
-      type: object
-      required:
-        - metodo_pago_id
-        - comanda_id
-        - monto
-      properties:
-        metodo_pago_id:
-          type: integer
-        comanda_id:
-          type: integer
-        monto:
-          type: number
-          format: float
-        referencia:
-          type: string
+      oneOf:
+        # 1️⃣ Pago completo: método = 1 + mesa_id
+        - type: object
+          required:
+            - metodo_pago_id
+            - mesa_id
+          properties:
+            metodo_pago_id:
+              type: integer
+              enum: [1]
+              description: "1 = pago completo de la comanda (requiere mesa_id)"
+            mesa_id:
+              type: integer
+              description: "ID de la mesa cuya comanda paga completa"
+
+        # 2️⃣ Pago parcial: método != 1 + comandaItem_id + cantidad
+        - type: object
+          required:
+            - metodo_pago_id
+            - comandaItem_id
+            - cantidad
+          properties:
+            metodo_pago_id:
+              type: integer
+              description: "!= 1 (cualquier otro método hace pago parcial)"
+            comandaItem_id:
+              type: integer
+              description: "ID del ComandaItem a pagar"
+            cantidad:
+              type: integer
+              minimum: 1
+              description: "Cantidad a pagar de ese ítem"
+          
 
     PagoUpdate:
       $ref: '#/components/schemas/PagoCreate'
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Sólo se puede confirmar una comanda en estado “pedido”."
+
+    Comanda:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        mesa_id:
+          type: integer
+          example: 7
+        estado_comanda_id:
+          type: integer
+          example: 3
+        cerrada:
+          type: boolean
+          example: false
+        mesa:
+          $ref: '#/components/schemas/Mesa'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComandaItem'
+        estadoComanda:
+          type: object
+          properties:
+            id:
+              type: integer
+            nombre:
+              type: string
+
+    ComandaItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        producto:
+          type: object
+          properties:
+            id:
+              type: integer
+            nombre:
+              type: string
+        estadoPedidoItem:
+          type: object
+          properties:
+            id:
+              type: integer
+            nombre:
+              type: string
+        cantidad:
+          type: number
+        precio_unitario:
+          type: number

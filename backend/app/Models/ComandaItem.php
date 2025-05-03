@@ -15,6 +15,7 @@ class ComandaItem extends Model
       'cantidad',
       'precio_unitario',
       'estado_item_id',
+        'pagada',
     ];
 
     // Relación al producto

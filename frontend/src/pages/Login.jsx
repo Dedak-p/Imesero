@@ -4,7 +4,7 @@ import { AppContext } from '../context/AppContext';
 
 function Login() {
   const navigate = useNavigate();
-  const  {setToken} = useContext(AppContext);
+  const { setLang, lang, setToken } = useContext(AppContext);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -64,14 +64,72 @@ function Login() {
     }
   };
 
+  const textos = {
+    login: {
+      es: "ACCEDER",
+      ca: "ACCEDIR",
+      en: "LOGIN"
+    },
+
+    email: {
+      es: "CORREO",
+      en: "EMAIL",
+      ca: "CORREU"
+
+    },
+
+    password: {
+      es: "CONTRASEÑA",
+      en: "PASSWORD ",
+      ca: "CONTRASENYA"
+    },
+
+    crear: {
+      es: "CREAR CUENTA",
+      en: "CREATE ACCOUNT",
+      ca: "CREAR COMPTE"
+
+    }
+
+
+  }
+
   return (
 
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#012340] text-white font-montserrat">
+      <div className="absolute top-4 right-4 flex gap-3">
+        <button
+          onClick={() => setLang('es')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'es'
+            ? 'bg-white text-[#012340] border-white'
+            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+            }`}
+        >
+          ES
+        </button>
+        <button
+          onClick={() => setLang('ca')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'ca'
+            ? 'bg-white text-[#012340] border-white'
+            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+            }`}
+        >
+          CA
+        </button>
+        <button
+          onClick={() => setLang('en')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'en'
+            ? 'bg-white text-[#012340] border-white'
+            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+            }`}
+        >
+          EN
+        </button>
+      </div>
 
-      {/* TÍTULO LOGIN */}
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold italic text-center mb-16 
                   [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
-        LOGIN
+        {textos.login[lang]}
       </h1>
 
       <form className="bg-[#012340]/80 shadow-lg shadow-blue-500/50 rounded-xl px-8 pt-6 pb-8 w-80 
@@ -80,7 +138,7 @@ function Login() {
         {/* EMAIL */}
         <div className="mb-4">
           <label className="text-white text-sm font-bold mb-4 block text-center" htmlFor="email">
-            EMAIL
+            {textos.email[lang]}
           </label>
           <input
             className="shadow-md appearance-none border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
@@ -98,7 +156,7 @@ function Login() {
         {/* PASSWORD */}
         <div className="mb-6">
           <label className="text-white text-sm font-bold mb-4 block text-center" htmlFor="password">
-            PASSWORD
+            {textos.password[lang]}
           </label>
           <input
             className="shadow-md appearance-none border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
@@ -119,12 +177,12 @@ function Login() {
           <button className="bg-white w-full md:w-1/2 text-[#7646e5] border border-[#7646e5] font-bold py-2 px-4 
                           rounded-xl transition-transform duration-300 hover:scale-120"
             type="submit">
-            ACCEDER
+            {textos.login[lang]}
           </button>
           <button className="bg-white w-full md:w-1/2 text-[#7646e5] border border-[#7646e5] font-bold py-2 px-4 
                           rounded-xl transition-transform duration-300 hover:scale-120"
             onClick={() => navigate('/crearCuenta')}>
-            CREAR CUENTA
+            {textos.crear[lang]}
           </button>
         </div>
 

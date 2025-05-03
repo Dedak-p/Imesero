@@ -53,7 +53,7 @@ class ComandaItemController extends Controller
         $comanda = Comanda::where('mesa_id', $mesa->id)
             ->where('user_id', auth()->id())
             ->where('anonimo', auth()->guest())
-            ->whereIn('estado_comanda_id', [1, 2, 3])
+            ->where('cerrada', false)
             ->latest()
             ->first();
 
@@ -134,7 +134,7 @@ class ComandaItemController extends Controller
         $comanda = Comanda::where('mesa_id', $mesa->id)
             ->where('user_id', auth()->id())
             ->where('anonimo', auth()->guest())
-            ->whereIn('estado_comanda_id', [1, 2, 3])
+            ->where('cerrada', false)
             ->latest()
             ->first();
 
@@ -231,9 +231,12 @@ class ComandaItemController extends Controller
         if ($comanda->estado_comanda_id === 1) {
             $comanda->update(['estado_comanda_id' => 2]);
         }
+        if ($comanda->estado_comanda_id === 4) {
+            $comanda->update(['estado_comanda_id' => 3]);
+        }
 
         // Obtener todos los items actualizados
-        $items = $comanda->items()->with(['producto', 'estadoPedidoItem'])->get();
+        $items = $comanda->items()->where('pagada', false)->with(['producto', 'estadoPedidoItem'])->get();
 
         // Agrupar ítems con el mismo producto
         $groupedItems = $items->groupBy('producto_id');
