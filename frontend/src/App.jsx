@@ -11,6 +11,8 @@ import UsuarioPage from "./pages/Usuario.jsx";
 import PagarPage from "./pages/Pagar.jsx";
 import CrearProducto  from './pages/CrearProducto.jsx'
 import EliminarProductos from './pages/EliminarProducto.jsx'
+import ModificarProducto from './pages/ModifcarProducto.jsx'
+import EditarProducto from './pages/EditarProducto.jsx'
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
       <Route path="/menu" element={<Navigate to="/" replace />} />
       <Route path="/crearProducto" element={<CrearProducto />} />
       <Route path="/eliminarProducto" element={<EliminarProductos />} />
+      <Route path="/modificarProducto" element={<ModificarProducto />} />
+      <Route path="/modificarProducto/:id" element={<EditarProducto />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
 

@@ -59,7 +59,7 @@ class ProductoController extends Controller
     {
         $validated = $request->validate([
             'categoria_id' => 'sometimes|exists:categorias,id',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagen' => 'nullable|string',
             'nombre_es' => 'sometimes|required|string|max:255',
             'nombre_ca' => 'sometimes|required|string|max:255',
             'nombre_en' => 'sometimes|required|string|max:255',
@@ -88,7 +88,7 @@ class ProductoController extends Controller
         return response()->json(['message' => 'Producto eliminado con éxito.'], 200);
     }
 /**
- * Sube un archivo de imagen al directorio storage/app/public/Imagenes/menu
+ * Sube un archivo de imagen al directorio storage/app/public/Imagenes/Menu
  * y devuelve la ruta pública.
  */
 public function uploadImagen(Request $request)
