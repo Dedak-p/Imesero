@@ -1,2 +1,11 @@
+# Ignorar todo en esta carpeta
 *
+
+# Exceptuar el archivo .gitignore
 !.gitignore
+
+
+# Exceptuar la carpeta Imagenes/Menu y su contenido
+!Imagenes/
+!Imagenes/Menu/
+!Imagenes/Menu/**
