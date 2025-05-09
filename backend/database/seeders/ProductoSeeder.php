@@ -24,7 +24,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Goat cheese, walnuts, lettuce, vinaigrette',
                 'precio' => 12.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/ensalada-de-queso-de-cabra-y-frutos-secos.jpg',
+                'imagen' => 'Imagenes/Menu/ensalada-de-queso-de-cabra-y-frutos-secos.jpg',
                 'recomendada' => false,
             ],
             [
@@ -39,7 +39,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Salmon, tartar sauce, dill, lemon',
                 'precio' => 14.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/salmon-marinado.jpg',
+                'imagen' => 'Imagenes/Menu/salmon-marinado.jpg',
                 'recomendada' => false,
             ],
             [
@@ -54,7 +54,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Roasted meat, cannelloni pasta, béchamel sauce',
                 'precio' => 13.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/canelones.jpg',
+                'imagen' => 'Imagenes/Menu/canelones.jpg',
                 'recomendada' => false,
             ],
             [
@@ -69,7 +69,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Mussels, onion, bell pepper, vinegar',
                 'precio' => 11.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/mejillones-a-la-vinagreta.jpg',
+                'imagen' => 'Imagenes/Menu/mejillones-a-la-vinagreta.jpg',
                 'recomendada' => false,
             ],
             [
@@ -84,7 +84,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Norway lobsters, garlic, parsley, lemon',
                 'precio' => 16.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/cigalas-salteadas.jpg',
+                'imagen' => 'Imagenes/Menu/cigalas-salteadas.jpg',
                 'recomendada' => false,
             ],
             [
@@ -99,7 +99,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Baby squids, flour, oil, aioli',
                 'precio' => 12.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/chipirones.jpg',
+                'imagen' => 'Imagenes/Menu/chipirones.jpg',
                 'recomendada' => false,
             ],
             [
@@ -114,7 +114,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Potatoes, carrots, peas, tuna, mayonnaise',
                 'precio' => 10.00,
                 'categoria' => 'Primeros',
-                'imagen' => '/Imagenes/Menu/ensaladilla-rusa-bonito.jpg',
+                'imagen' => 'Imagenes/Menu/ensaladilla-rusa-bonito.jpg',
                 'recomendada' => false,
             ],
 
@@ -132,7 +132,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Rice, assorted seafood, fish stock',
                 'precio' => 18.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/arroz-seco-lonja.jpg',
+                'imagen' => 'Imagenes/Menu/arroz-seco-lonja.jpg',
                 'recomendada' => true,
             ],
             [
@@ -147,7 +147,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Noodles, cuttlefish, seafood, fish stock',
                 'precio' => 17.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/fideua.jpg',
+                'imagen' => 'Imagenes/Menu/fideua.jpg',
                 'recomendada' => false,
             ],
             [
@@ -162,7 +162,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Sausage, assorted mushrooms, garlic, parsley',
                 'precio' => 15.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/butifarra.jpg',
+                'imagen' => 'Imagenes/Menu/butifarra.jpg',
                 'recomendada' => false,
             ],
             [
@@ -177,7 +177,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Prawns, potato, aioli',
                 'precio' => 16.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/timball.jpg',
+                'imagen' => 'Imagenes/Menu/timball.jpg',
                 'recomendada' => false,
             ],
             [
@@ -192,7 +192,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Squid, olive oil, garlic, parsley',
                 'precio' => 18.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/calamar-nacional.jpg',
+                'imagen' => 'Imagenes/Menu/calamar-nacional.jpg',
                 'recomendada' => false,
             ],
             [
@@ -207,7 +207,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Hake, assorted vegetables, olive oil',
                 'precio' => 20.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/merluza-plancha.jpeg',
+                'imagen' => 'Imagenes/Menu/merluza-plancha.jpeg',
                 'recomendada' => false,
             ],
             [
@@ -222,7 +222,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Ossobuco, Priorat red wine, vegetables',
                 'precio' => 22.00,
                 'categoria' => 'Segundos',
-                'imagen' => '/Imagenes/Menu/osobuco.jpg',
+                'imagen' => 'Imagenes/Menu/osobuco.jpg',
                 'recomendada' => false,
             ],
             //Bebidas
@@ -238,7 +238,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Selected grapes',
                 'precio' => 3.00,
                 'categoria' => 'Bebidas',
-                'imagen' => '/Imagenes/Menu/vino.jpeg',
+                'imagen' => 'Imagenes/Menu/vino.jpeg',
                 'recomendada' => false,
             ],
             [
@@ -253,7 +253,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Mineral water',
                 'precio' => 2.00,
                 'categoria' => 'Bebidas',
-                'imagen' => '/Imagenes/Menu/agua.jpg',
+                'imagen' => 'Imagenes/Menu/agua.jpg',
                 'recomendada' => false,
             ],
             [
@@ -268,7 +268,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Barley, hops, yeast, water',
                 'precio' => 3.00,
                 'categoria' => 'Bebidas',
-                'imagen' => '/Imagenes/Menu/cerveza.jpg',
+                'imagen' => 'Imagenes/Menu/cerveza.jpg',
                 'recomendada' => true,
             ],
 
@@ -285,7 +285,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Cream cheese, biscuits, butter, sugar',
                 'precio' => 5.00,
                 'categoria' => 'Postres',
-                'imagen' => '/Imagenes/Menu/tarta-queso.jpg',
+                'imagen' => 'Imagenes/Menu/tarta-queso.jpg',
                 'recomendada' => false,
             ],
             [
@@ -300,7 +300,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Chocolate, flour, sugar, eggs, apricot jam',
                 'precio' => 5.50,
                 'categoria' => 'Postres',
-                'imagen' => '/Imagenes/Menu/tarta-sacher.jpg',
+                'imagen' => 'Imagenes/Menu/tarta-sacher.jpg',
                 'recomendada' => false,
             ],
             [
@@ -315,7 +315,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Milk, sugar, egg, cinnamon, lemon',
                 'precio' => 4.50,
                 'categoria' => 'Postres',
-                'imagen' => '/Imagenes/Menu/crema-catalana.jpg',
+                'imagen' => 'Imagenes/Menu/crema-catalana.jpg',
                 'recomendada' => false,
             ],
             [
@@ -330,7 +330,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Milk, eggs, sugar, cream',
                 'precio' => 4.00,
                 'categoria' => 'Postres',
-                'imagen' => '/Imagenes/Menu/pudding.jpg',
+                'imagen' => 'Imagenes/Menu/pudding.jpg',
                 'recomendada' => false,
             ],
             [
@@ -345,7 +345,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Strawberries, whipped cream',
                 'precio' => 4.50,
                 'categoria' => 'Postres',
-                'imagen' => '/Imagenes/Menu/fresas.jpg',
+                'imagen' => 'Imagenes/Menu/fresas.jpg',
                 'recomendada' => false,
             ],
             [
@@ -360,7 +360,7 @@ class ProductoSeeder extends Seeder
                 'ingredientes_en' => 'Milk, cream, vanilla, sugar',
                 'precio' => 4.00,
                 'categoria' => 'Postres',
-                'imagen' => '/Imagenes/Menu/helado-vainilla.jpg',
+                'imagen' => 'Imagenes/Menu/helado-vainilla.jpg',
                 'recomendada' => false,
             ],
         ];
