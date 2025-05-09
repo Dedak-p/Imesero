@@ -43,6 +43,20 @@ const SeguimientoPage = () => {
 
   }, [mesaId, setStatusComand]);
 
+  // Función para incrementar statusComand cada 5 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStatusComand((prevStatus) => {
+        if (prevStatus >= 7) {
+          return 4; // Reiniciar a 4 si llega a 7
+        }
+        return prevStatus + 1; // Incrementar en 1
+      });
+    }, 5000); // Cada 5 segundos
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(interval);
+  }, [setStatusComand]);
 
 
   if (error) {
