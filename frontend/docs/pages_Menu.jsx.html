@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Menu.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Menu.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useContext, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import Axios from "axios";
+import Header from "../components/Header";
+import SeccionTitulo from "../components/SeccionTitulo";
+import Item from "../components/Item";
+import useApiCall from "../hooks/useApiCall";
+import { AppContext } from "../context/AppContext.jsx";
+
+/**
+ * Representa un producto del menú.
+ * @typedef {Object} MenuItem
+ * @property {number} id                - Identificador único del producto.
+ * @property {string} nombre_es         - Nombre en español.
+ * @property {string} nombre_ca         - Nombre en catalán.
+ * @property {string} nombre_en         - Nombre en inglés.
+ * @property {string} descripcion_es    - Descripción en español.
+ * @property {string} descripcion_ca    - Descripción en catalán.
+ * @property {string} descripcion_en    - Descripción en inglés.
+ * @property {number} precio            - Precio unitario en euros.
+ * @property {number} categoria_id      - ID de la categoría (1=Primeros, 2=Segundos, 3=Bebidas, 4=Postres).
+ * @property {string} imagen            - Nombre de archivo de la imagen.
+ */
+
+/**
+ * Textos localizados para las secciones del menú.
+ * @typedef {Object} MenuTexts
+ * @property {Object.&lt;string,string>} recomendacion - Título de recomendación de la casa.
+ * @property {Object.&lt;string,string>} primeros      - Título de la sección de primeros.
+ * @property {Object.&lt;string,string>} segundos      - Título de la sección de segundos.
+ * @property {Object.&lt;string,string>} postres       - Título de la sección de postres.
+ * @property {Object.&lt;string,string>} bebidas       - Título de la sección de bebidas.
+ */
+
+/**
+ * Página de menú que muestra los productos filtrados por categoría.
+ *
+ * - Al montar, registra la mesa activa en el contexto con `setMesaId`.
+ * - Carga todos los productos via `useApiCall`.
+ * - Al añadir un producto, además de hacer la llamada, invoca `bumpCart()`
+ *   para notificar al dropdown del carrito que debe refrescarse.
+ *
+ * @component
+ * @returns {JSX.Element}
+ */
+const MenuPage = () => {
+  const { lang, setMesaId, bumpCart } = useContext(AppContext);
+  const { mesaId: mesaObtenida } = useParams();
+
+  /**
+   * Textos localizados usados en la página de menú.
+   * @type {MenuTexts}
+   */
+  const textos = {
+    recomendacion: {
+      es: "Recomendación de la casa",
+      en: "Chef's recommendation",
+      ca: "Recomanació de la casa",
+    },
+    primeros: {
+      es: "Primeros",
+      en: "Starters",
+      ca: "Primers",
+    },
+    segundos: {
+      es: "Segundos",
+      en: "Main courses",
+      ca: "Segons",
+    },
+    postres: {
+      es: "Postres",
+      en: "Desserts",
+      ca: "Postres",
+    },
+    bebidas: {
+      es: "Bebidas",
+      en: "Drinks",
+      ca: "Begudes",
+    },
+  };
+
+  /**
+   * Registra la mesa seleccionada en el contexto global.
+   * @note Este efecto se ejecuta una sola vez al montar o si cambia la ruta.
+   */
+  useEffect(() => {
+    if (mesaObtenida) {
+      setMesaId(Number(mesaObtenida));
+    }
+  }, [mesaObtenida, setMesaId]);
+
+  // Llamada a la API para obtener todos los productos
+  const {
+    data: menu = [],
+    loading,
+    error,
+    refetch,
+  } = useApiCall(
+    `${window.location.protocol}//${window.location.hostname}:8000/api/productos`
+  );
+
+  /**
+   * Añade un producto al carrito (comanda).
+   *
+   * - Determina si el usuario está autenticado por la existencia de `token`.
+   * - Elige el endpoint correspondiente.
+   * - Tras el POST exitoso, invoca `bumpCart()` para que el dropdown del carrito
+   *   sepa que debe volver a cargar sus datos.
+   *
+   * @param {MenuItem} producto - Producto a añadir al carrito.
+   * @returns {Promise&lt;void>}
+   */
+  const handleAddToCart = async (producto) => {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const endpoint = token
+        ? `/api/mesas/${mesaObtenida}/itemsAuth`
+        : `/api/mesas/${mesaObtenida}/items`;
+      const url = `${window.location.protocol}//${window.location.hostname}:8000${endpoint}`;
+
+      await Axios.post(
+        url,
+        { producto_id: producto.id, cantidad: 1 },
+        { withCredentials: true, headers }
+      );
+
+      // **NUEVO**: Notificar al carrito para que se actualice
+      bumpCart();
+    } catch (err) {
+      console.error(
+        "Error al añadir producto:",
+        err.response?.data || err.message
+      );
+    }
+  };
+
+  if (loading) {
+    return &lt;p className="text-white text-center mt-4">Cargando menú…&lt;/p>;
+  }
+
+  if (error) {
+    return (
+      &lt;p className="text-red-500 text-center mt-4">
+        Error al cargar el menú.{" "}
+        &lt;button onClick={refetch} className="underline">
+          Reintentar
+        &lt;/button>
+      &lt;/p>
+    );
+  }
+
+  return (
+    &lt;>
+      &lt;Header />
+      &lt;div className="p-4 mt-1 flex flex-col items-center">
+        &lt;SeccionTitulo titulo={textos.recomendacion[lang]} />
+        {menu
+          .filter((item) => item.recomendada)
+          .map((item) => (
+            &lt;Item
+              key={item.id}
+              producto={item}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
+
+        {/* Sección de primeros */}
+        &lt;SeccionTitulo titulo={textos.primeros[lang]} slug="primeros" />
+        {menu
+          .filter((item) => item.categoria_id === 1)
+          .map((item) => (
+            &lt;Item
+              key={item.id}
+              producto={item}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
+
+        {/* Sección de segundos */}
+        &lt;SeccionTitulo titulo={textos.segundos[lang]} slug="segundos" />
+        {menu
+          .filter((item) => item.categoria_id === 2)
+          .map((item) => (
+            &lt;Item
+              key={item.id}
+              producto={item}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
+
+        {/* Sección de postres */}
+        &lt;SeccionTitulo titulo={textos.postres[lang]} slug="postres" />
+        {menu
+          .filter((item) => item.categoria_id === 4)
+          .map((item) => (
+            &lt;Item
+              key={item.id}
+              producto={item}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
+
+        {/* Sección de bebidas */}
+        &lt;SeccionTitulo titulo={textos.bebidas[lang]} slug="bebidas" />
+        {menu
+          .filter((item) => item.categoria_id === 3)
+          .map((item) => (
+            &lt;Item
+              key={item.id}
+              producto={item}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
+      &lt;/div>
+    &lt;/>
+  );
+};
+
+export default MenuPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Externals</h3><ul><li><a href="external-AxiosInstance.html">AxiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#AppContext">AppContext</a></li><li><a href="global.html#CarritoPage">CarritoPage</a></li><li><a href="global.html#CrearCuenta">CrearCuenta</a></li><li><a href="global.html#CrearProducto">CrearProducto</a></li><li><a href="global.html#EditarProducto">EditarProducto</a></li><li><a href="global.html#EliminarProductos">EliminarProductos</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Item">Item</a></li><li><a href="global.html#ItemCarrito">ItemCarrito</a></li><li><a href="global.html#ItemConfirmado">ItemConfirmado</a></li><li><a href="global.html#ItemModificar">ItemModificar</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MenuPage">MenuPage</a></li><li><a href="global.html#ModificarProducto">ModificarProducto</a></li><li><a href="global.html#NotFoundPage">NotFoundPage</a></li><li><a href="global.html#PagarPage">PagarPage</a></li><li><a href="global.html#SeccionTitulo">SeccionTitulo</a></li><li><a href="global.html#SeguimientoPage">SeguimientoPage</a></li><li><a href="global.html#UsuarioPage">UsuarioPage</a></li><li><a href="global.html#apiClient">apiClient</a></li><li><a href="global.html#useApiCall">useApiCall</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat May 10 2025 18:06:11 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

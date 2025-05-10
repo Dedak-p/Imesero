@@ -1,69 +1,37 @@
-import { useState, useEffect, useContext } from "react";
-import { AppContext } from "../context/AppContext";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import SeccionTitulo from "../components/SeccionTitulo";
-import ItemCarrito from "../components/ItemCarrito";
+import { AppContext } from "../context/AppContext";
 
-import Axios from "axios";
+/**
+ * Traducciones para los distintos estados del seguimiento.
+ * @typedef {Object} SeguimientoTranslations
+ * @property {Object.<string,string>} titulo        - Título de la página.
+ * @property {Object.<string,string>} pagado        - Texto para estado "Pagado".
+ * @property {Object.<string,string>} preparandose  - Texto para estado "Preparándose".
+ * @property {Object.<string,string>} enCamino      - Texto para estado "En camino".
+ * @property {Object.<string,string>} servido       - Texto para estado "Servido".
+ */
 
+/**
+ * Componente de página para el seguimiento del pedido.
+ *
+ * Muestra los pasos de la comanda y resalta el estado actual,
+ * avanzando automáticamente cada 5 segundos.
+ *
+ * @component
+ * @returns {JSX.Element}
+ */
 const SeguimientoPage = () => {
-  const { mesaId, statusComand, setStatusComand } = useContext(AppContext);
+  const { mesaId, statusComand, setStatusComand, lang } = useContext(AppContext);
   const [error, setError] = useState(null);
-  const { lang } = useContext(AppContext);
+  const navigate = useNavigate();
 
-
-  useEffect(() => {
-    if (!mesaId) {
-      setError("No se ha asignado un ID de mesa.");
-      return;
-    }
-
-    const fetchComandaAndItems = async () => {
-      try {
-        const mesaResponse = await fetch(`http://${window.location.hostname}:8000/api/mesas/${mesaId}`);
-        
-        if (!mesaResponse.ok) { 
-          throw new Error("No se pudo obtener la mesa"); 
-        }
-
-        const mesaData = await mesaResponse.json();
-        console.log("Datos de la mesa:", mesaData);
-
-        if (!mesaData || !mesaData.comanda?.id) {
-          setError("La mesa no tiene una comanda asociada");
-          return;
-        }        
-
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchComandaAndItems();
-
-  }, [mesaId, setStatusComand]);
-
-  // Función para incrementar statusComand cada 5 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStatusComand((prevStatus) => {
-        if (prevStatus >= 7) {
-          return 4; // Reiniciar a 4 si llega a 7
-        }
-        return prevStatus + 1; // Incrementar en 1
-      });
-    }, 5000); // Cada 5 segundos
-
-    // Limpiar el intervalo cuando el componente se desmonte
-    return () => clearInterval(interval);
-  }, [setStatusComand]);
-
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-
+  /**
+   * Traducciones locales según el idioma seleccionado.
+   * @type {SeguimientoTranslations}
+   */
   const translations = {
     es: {
       titulo: "Seguimiento de tu pedido",
@@ -88,17 +56,53 @@ const SeguimientoPage = () => {
     },
   };
 
+  // Verifica que haya una mesa y comanda asociada al montar
+  useEffect(() => {
+    if (!mesaId) {
+      setError("No se ha asignado un ID de mesa.");
+      return;
+    }
+    (async () => {
+      try {
+        const resp = await fetch(
+          `http://${window.location.hostname}:8000/api/mesas/${mesaId}`
+        );
+        if (!resp.ok) throw new Error("No se pudo obtener la mesa");
+        const mesaData = await resp.json();
+        if (!mesaData?.comanda?.id) {
+          setError("La mesa no tiene una comanda asociada");
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    })();
+  }, [mesaId]);
+
+  // Avanza el estado cada 5 segundos, reiniciando al llegar a 7
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStatusComand((prev) => (prev >= 7 ? 4 : prev + 1));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [setStatusComand]);
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 mt-10">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <>
       <Header />
-      <div className="min-h-screen p-4 mt-25 flex-col justify-content align-items-center text-center text-white bg-[#012340]">
-        <SeccionTitulo titulo={translations[lang]?.titulo || "Seguimiento de tu pedido"} />
+      <div className="min-h-screen p-4 mt-25 text-center text-white bg-[#012340] flex flex-col items-center">
+        <SeccionTitulo titulo={translations[lang]?.titulo} />
 
-        <div className="flex flex-row justify-between mt-5 mb-5 w-full max-w-screen-md mx-auto  border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C]">
-          {/* Columna A */}
-          <div className="w-1/3  mt-5 flex items-center justify-center relative">
-            {/* Zig-Zag SVG */}
+        <div className="flex w-full max-w-screen-md mx-auto border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C] mt-5 mb-5">
+          {/* Decorativo zig-zag */}
+          <div className="w-1/3 flex items-center justify-center">
             <svg
               className="h-4/5 w-24"
               viewBox="0 0 100 400"
@@ -115,56 +119,26 @@ const SeguimientoPage = () => {
             </svg>
           </div>
 
-          {/* Columna B */}
-          <div className="w-2/3  flex flex-col justify-center p-8 space-y-4">
-
-            {/* Palabra fija */}
-            <div className="relative h-15  flex items-center justify-center">
-              {statusComand === 4 && (
-                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
-              )}
-              <span className="relative text-lg font-bold">
-                {translations[lang]?.pagado || "Pagado"}
-              </span>
-            </div>
-
-            <div className="relative h-15 mt-10 flex items-center justify-center">
-              {statusComand === 5 && (
-                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
-              )}
-              <span className="relative text-lg font-bold">
-                {translations[lang]?.preparandose || "Preparándose"}
-              </span>
-            </div>
-
-            {/* Otra palabra fija */}
-            <div className="relative h-15 mt-10 flex items-center justify-center">
-              {statusComand === 6 && (
-                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
-              )}
-              <span className="relative text-lg font-bold">
-                {translations[lang]?.enCamino || "En camino"}
-              </span>
-            </div>
-
-            {/* Otra palabra fija */}
-            <div className="relative h-15 mt-10 flex items-center justify-center">
-              {statusComand === 7 && (
-                <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
-              )}
-              <span className="relative text-lg font-bold">
-                {translations[lang]?.servido || "Servido"}
-              </span>
-            </div>
-
+          {/* Estados */}
+          <div className="w-2/3 flex flex-col justify-center p-8 space-y-4">
+            {["pagado", "preparandose", "enCamino", "servido"].map(
+              (key, idx) => (
+                <div
+                  key={key}
+                  className="relative flex items-center justify-center"
+                >
+                  {statusComand === 4 + idx && (
+                    <div className="absolute inset-0 bg-green-300 opacity-70 rounded" />
+                  )}
+                  <span className="relative text-lg font-bold">
+                    {translations[lang][key]}
+                  </span>
+                </div>
+              )
+            )}
           </div>
         </div>
-
-
-
-
-
-      </div >
+      </div>
     </>
   );
 };

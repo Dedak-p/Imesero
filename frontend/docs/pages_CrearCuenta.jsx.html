@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/CrearCuenta.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/CrearCuenta.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../context/AppContext';
+
+/**
+ * Componente para crear una cuenta de usuario.
+ *
+ * Renderiza un formulario que solicita email y contraseña (con confirmación),
+ * valida los campos, envía la petición de registro a la API,
+ * guarda el token y nombre de usuario en localStorage, actualiza el contexto
+ * y redirige al usuario a la página principal.
+ *
+ * @component
+ * @returns {JSX.Element}
+ */
+function CrearCuenta() {
+  const navigate = useNavigate();
+  const { setLang, lang, setToken } = useContext(AppContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  /**
+   * Expresión regular para validar formato de correo electrónico.
+   * @type {RegExp}
+   */
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  /**
+   * Gestiona el envío del formulario de registro.
+   * Valida el email y la coincidencia de contraseñas,
+   * realiza la petición POST a `/api/register`, almacena el token y el nombre de usuario,
+   * actualiza el contexto global y redirige al inicio.
+   *
+   * @async
+   * @param {React.FormEvent&lt;HTMLFormElement>} e - Evento de submit del formulario.
+   * @returns {Promise&lt;void>}
+   */
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    if (!emailRegex.test(email)) {
+      setErrorMessage('⚠️ El correo electrónico no es válido.');
+      return;
+    }
+
+    if (password !== password2) {
+      setErrorMessage('⚠️ Las contraseñas no coinciden.');
+      return;
+    }
+    setErrorMessage('');
+
+    try {
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.hostname}:8000/api/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            name: email,
+            email,
+            password,
+            password_confirmation: password2,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error en el servidor:', errorData);
+        setErrorMessage(errorData.message || '⚠️ Error al crear la cuenta.');
+        return;
+      }
+
+      const data = await response.json();
+      console.log('La data recibida es:', data);
+
+      // Guardar token y usuario
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+      localStorage.setItem('user', data.user.name);
+
+      navigate('/');
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+      setErrorMessage('⚠️ Error al conectar con el servidor.');
+    }
+  }
+
+  /**
+   * Textos localizados para etiquetas y botones del formulario.
+   * @type {{
+   *   crear: Record&lt;string,string>,
+   *   email: Record&lt;string,string>,
+   *   password: Record&lt;string,string>,
+   *   repite: Record&lt;string,string>
+   * }}
+   */
+  const textos = {
+    crear: { es: "CREAR CUENTA", en: "CREATE ACCOUNT", ca: "CREAR COMPTE" },
+    email: { es: "CORREO", en: "EMAIL", ca: "CORREU" },
+    password: {
+      es: "CONTRASEÑA",
+      en: "PASSWORD",
+      ca: "CONTRASENYA"
+    },
+    repite: {
+      es: "REPITE TU CONTRASEÑA",
+      en: "REPEAT YOUR PASSWORD",
+      ca: "REPETEIX LA TEVA CONTRASENYA"
+    }
+  };
+
+  return (
+    &lt;div className="min-h-screen flex flex-col items-center justify-center bg-[#012340] text-white font-montserrat p-6">
+      &lt;div className="absolute top-4 right-4 flex gap-3">
+        &lt;button
+          onClick={() => setLang('es')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${
+            lang === 'es'
+              ? 'bg-white text-[#012340] border-white'
+              : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+          }`}
+        >
+          ES
+        &lt;/button>
+        &lt;button
+          onClick={() => setLang('ca')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${
+            lang === 'ca'
+              ? 'bg-white text-[#012340] border-white'
+              : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+          }`}
+        >
+          CA
+        &lt;/button>
+        &lt;button
+          onClick={() => setLang('en')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${
+            lang === 'en'
+              ? 'bg-white text-[#012340] border-white'
+              : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+          }`}
+        >
+          EN
+        &lt;/button>
+      &lt;/div>
+
+      {/* TÍTULO */}
+      &lt;h1 className="text-4xl md:text-5xl lg:text-6xl font-bold italic text-center mb-16 [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
+        {textos.crear[lang]}
+      &lt;/h1>
+
+      {/* FORMULARIO */}
+      &lt;form
+        className="bg-[#012340]/80 shadow-lg shadow-blue-500/50 rounded-xl px-8 pt-6 pb-8 w-80 md:w-96 lg:w-[30rem] flex flex-col md:p-10 lg:p-12"
+        onSubmit={handleLogin}
+      >
+        {/* EMAIL */}
+        &lt;div className="mb-4">
+          &lt;label
+            className="text-white text-sm font-bold mb-2 block text-left"
+            htmlFor="email"
+          >
+            {textos.email[lang]}
+          &lt;/label>
+          &lt;input
+            className="shadow-md border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent leading-tight focus:outline-none focus:ring focus:border-blue-300"
+            type="text"
+            id="email"
+            placeholder="email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        &lt;/div>
+
+        {/* CONTRASEÑA */}
+        &lt;div className="mb-6">
+          &lt;label
+            className="text-white text-sm font-bold mb-2 block text-left"
+            htmlFor="password"
+          >
+            {textos.password[lang]}
+          &lt;/label>
+          &lt;input
+            className="shadow-md border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent leading-tight focus:outline-none focus:ring focus:border-blue-300"
+            type="password"
+            id="password"
+            placeholder="******************"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        &lt;/div>
+
+        {/* REPETIR CONTRASEÑA */}
+        &lt;div className="mb-6">
+          &lt;label
+            className="text-white text-sm font-bold mb-2 block text-left"
+            htmlFor="password2"
+          >
+            {textos.repite[lang]}
+          &lt;/label>
+          &lt;input
+            className="shadow-md border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent leading-tight focus:outline-none focus:ring focus:border-blue-300"
+            type="password"
+            id="password2"
+            placeholder="******************"
+            value={password2}
+            onChange={(e) => setPassword2(e.target.value)}
+            required
+          />
+        &lt;/div>
+
+        {/* MENSAJE DE ERROR */}
+        {errorMessage &amp;&amp; (
+          &lt;p className="text-red-500 text-center mb-4">{errorMessage}&lt;/p>
+        )}
+
+        {/* BOTÓN DE CREAR CUENTA */}
+        &lt;div className="m-6">
+          &lt;button
+            className="bg-white w-full text-[#7646e5] border border-[#7646e5] font-bold py-3 px-6 text-lg rounded-xl transition-transform duration-300 hover:scale-130"
+            type="submit"
+          >
+            {textos.crear[lang]}
+          &lt;/button>
+        &lt;/div>
+      &lt;/form>
+    &lt;/div>
+  );
+}
+
+export default CrearCuenta;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Externals</h3><ul><li><a href="external-AxiosInstance.html">AxiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#AppContext">AppContext</a></li><li><a href="global.html#CarritoPage">CarritoPage</a></li><li><a href="global.html#CrearCuenta">CrearCuenta</a></li><li><a href="global.html#CrearProducto">CrearProducto</a></li><li><a href="global.html#EditarProducto">EditarProducto</a></li><li><a href="global.html#EliminarProductos">EliminarProductos</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Item">Item</a></li><li><a href="global.html#ItemCarrito">ItemCarrito</a></li><li><a href="global.html#ItemConfirmado">ItemConfirmado</a></li><li><a href="global.html#ItemModificar">ItemModificar</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MenuPage">MenuPage</a></li><li><a href="global.html#ModificarProducto">ModificarProducto</a></li><li><a href="global.html#NotFoundPage">NotFoundPage</a></li><li><a href="global.html#PagarPage">PagarPage</a></li><li><a href="global.html#SeccionTitulo">SeccionTitulo</a></li><li><a href="global.html#SeguimientoPage">SeguimientoPage</a></li><li><a href="global.html#UsuarioPage">UsuarioPage</a></li><li><a href="global.html#apiClient">apiClient</a></li><li><a href="global.html#useApiCall">useApiCall</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat May 10 2025 18:06:11 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

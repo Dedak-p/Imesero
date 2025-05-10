@@ -1,21 +1,68 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import useApiCall from "../hooks/useApiCall";
 
+/**
+ * Representa un producto obtenido de la API.
+ * @typedef {Object} Product
+ * @property {number} id               - Identificador único del producto.
+ * @property {string} imagen           - Nombre de archivo de la imagen (almacenada en /storage).
+ * @property {string} nombre_es        - Nombre en español.
+ * @property {string} nombre_ca        - Nombre en catalán.
+ * @property {string} nombre_en        - Nombre en inglés.
+ * @property {string} descripcion_es   - Descripción en español.
+ * @property {string} descripcion_ca   - Descripción en catalán.
+ * @property {string} descripcion_en   - Descripción en inglés.
+ * @property {number} precio           - Precio unitario en euros.
+ */
+
+/**
+ * Props del componente ItemCarrito.
+ * @typedef {Object} ItemCarritoProps
+ * @property {number} productoId                - ID del producto en el carrito.
+ * @property {number} cantidad                  - Cantidad de unidades en el carrito.
+ * @property {string} [estado]                  - Estado actual del pedido (no usado directamente aquí).
+ * @property {boolean} [pagada]                 - Indica si la orden está pagada (no usado directamente aquí).
+ * @property {function(number):void} onAdd      - Callback para aumentar la cantidad de este producto.
+ * @property {function(number):void} onRemove   - Callback para disminuir la cantidad de este producto.
+ */
+
+/**
+ * Componente de línea de pedido en el carrito.
+ *
+ * Muestra la información del producto (imagen, nombre, descripción y precio total según la cantidad),
+ * controles para incrementar o decrementar la cantidad, y gestiona el estado de carga/errores
+ * al obtener los datos desde la API.
+ *
+ * @component
+ * @param {ItemCarritoProps} props
+ * @returns {JSX.Element}
+ */
 const ItemCarrito = ({ productoId, cantidad, estado, pagada, onAdd, onRemove }) => {
   const { lang } = useContext(AppContext);
 
+  // Hook para obtener los datos del producto; siempre devuelve un array (normalizado).
   const {
     data: productoArr,
     loading,
     error,
     refetch
-  } = useApiCall(`http://${window.location.hostname}:8000/api/productos/${productoId}`, "get", null, [productoId]);
+  } = useApiCall(
+    `http://${window.location.hostname}:8000/api/productos/${productoId}`,
+    "get",
+    null,
+    [productoId]
+  );
 
+  // Como useApiCall normaliza a array, tomamos el primer elemento.
   const producto = productoArr[0];
 
   if (error) {
-    return <div className="p-4 text-center text-red-400">Error al cargar producto</div>;
+    return (
+      <div className="p-4 text-center text-red-400">
+        Error al cargar producto
+      </div>
+    );
   }
 
   return (
@@ -72,8 +119,7 @@ const ItemCarrito = ({ productoId, cantidad, estado, pagada, onAdd, onRemove }) 
         </>
       )}
     </div>
-);
-
+  );
 };
 
 export default ItemCarrito;

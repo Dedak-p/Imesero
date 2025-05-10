@@ -2,6 +2,25 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AppContext } from '../context/AppContext';
 
+/**
+ * Textos localizados para el formulario de login.
+ * @typedef {Object} LoginTexts
+ * @property {Object.<string,string>} login     - Texto del botón de login y título.
+ * @property {Object.<string,string>} email     - Etiqueta para el campo de correo.
+ * @property {Object.<string,string>} password  - Etiqueta para el campo de contraseña.
+ * @property {Object.<string,string>} crear     - Texto del botón para crear cuenta.
+ */
+
+/**
+ * Componente de formulario de autenticación de usuario.
+ *
+ * Muestra campos de email y contraseña, valida el email con una expresión regular,
+ * envía la petición de login a la API, guarda el token y nombre de usuario en localStorage
+ * y redirige al inicio o muestra mensajes de error.
+ *
+ * @component
+ * @returns {JSX.Element} Elemento React para la página de login.
+ */
 function Login() {
   const navigate = useNavigate();
   const { setLang, lang, setToken } = useContext(AppContext);
@@ -10,10 +29,21 @@ function Login() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-
-  // Expresión regular para validar email
+  /**
+   * Expresión regular para validar formato de correo electrónico.
+   * @type {RegExp}
+   */
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+  /**
+   * Gestiona el envío del formulario de login.
+   * Valida el email, envía la petición POST a `/api/login`,
+   * guarda el token y nombre de usuario en localStorage, actualiza el contexto
+   * y redirige al inicio. Muestra mensaje de error si falla.
+   *
+   * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - Evento de submit del formulario.
+   */
   async function handleLogin(e) {
     e.preventDefault();
 
@@ -21,24 +51,22 @@ function Login() {
       setErrorMessage('⚠️ El correo electrónico no es válido.');
       return;
     }
-
     setErrorMessage('');
 
     try {
-      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8000/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      })
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.hostname}:8000/api/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (!response.ok) {
-        // Si el servidor devuelve un error (como 500), lanza un error
         const errorData = await response.json();
         console.error('Error en el servidor:', errorData);
         setErrorMessage(errorData.message || '⚠️ Error al identificarte.');
@@ -46,148 +74,126 @@ function Login() {
       }
 
       const data = await response.json();
-      console.log('La data recibida es: ', data);
-
-      // Guardar el token en el localStorage
+      // Guardar token y usuario
       localStorage.setItem('token', data.token);
       setToken(data.token);
-
-      // Guardar el nombre de usuario en el localStorage
       localStorage.setItem('user', data.user.name);
 
-      // Redirigir al usuario a la página de inicio
       navigate('/');
-
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
+    } catch (err) {
+      console.error('Error en la solicitud:', err);
       setErrorMessage('⚠️ Error al conectar con el servidor.');
     }
-  };
-
-  const textos = {
-    login: {
-      es: "ACCEDER",
-      ca: "ACCEDIR",
-      en: "LOGIN"
-    },
-
-    email: {
-      es: "CORREO",
-      en: "EMAIL",
-      ca: "CORREU"
-
-    },
-
-    password: {
-      es: "CONTRASEÑA",
-      en: "PASSWORD ",
-      ca: "CONTRASENYA"
-    },
-
-    crear: {
-      es: "CREAR CUENTA",
-      en: "CREATE ACCOUNT",
-      ca: "CREAR COMPTE"
-
-    }
-
-
   }
 
-  return (
+  /**
+   * Textos localizados para elementos del formulario.
+   * @type {LoginTexts}
+   */
+  const textos = {
+    login: { es: "ACCEDER", ca: "ACCEDIR", en: "LOGIN" },
+    email: { es: "CORREO", ca: "CORREU", en: "EMAIL" },
+    password: { es: "CONTRASEÑA", ca: "CONTRASENYA", en: "PASSWORD" },
+    crear: { es: "CREAR CUENTA", ca: "CREAR COMPTE", en: "CREATE ACCOUNT" },
+  };
 
+  return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#012340] text-white font-montserrat">
+      {/* Selector de idioma */}
       <div className="absolute top-4 right-4 flex gap-3">
-        <button
-          onClick={() => setLang('es')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'es'
-            ? 'bg-white text-[#012340] border-white'
-            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
+        {['es','ca','en'].map(code => (
+          <button
+            key={code}
+            onClick={() => setLang(code)}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${
+              lang === code
+                ? 'bg-white text-[#012340] border-white'
+                : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
             }`}
-        >
-          ES
-        </button>
-        <button
-          onClick={() => setLang('ca')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'ca'
-            ? 'bg-white text-[#012340] border-white'
-            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
-            }`}
-        >
-          CA
-        </button>
-        <button
-          onClick={() => setLang('en')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${lang === 'en'
-            ? 'bg-white text-[#012340] border-white'
-            : 'bg-transparent text-white border-white hover:bg-white hover:text-[#012340]'
-            }`}
-        >
-          EN
-        </button>
+          >
+            {code.toUpperCase()}
+          </button>
+        ))}
       </div>
 
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold italic text-center mb-16 
-                  [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
+      {/* Título */}
+      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold italic text-center mb-16
+                      [text-shadow:_0_4px_8px_rgba(14_165_223_/_0.5)]">
         {textos.login[lang]}
       </h1>
 
-      <form className="bg-[#012340]/80 shadow-lg shadow-blue-500/50 rounded-xl px-8 pt-6 pb-8 w-80 
+      {/* Formulario */}
+      <form
+        className="bg-[#012340]/80 shadow-lg shadow-blue-500/50 rounded-xl px-8 pt-6 pb-8 w-80
                     md:w-96 lg:w-[28rem] flex flex-col lg:p-12"
-        onSubmit={handleLogin}>
-        {/* EMAIL */}
+        onSubmit={handleLogin}
+      >
+        {/* Email */}
         <div className="mb-4">
-          <label className="text-white text-sm font-bold mb-4 block text-center" htmlFor="email">
+          <label
+            htmlFor="email"
+            className="text-white text-sm font-bold mb-4 block text-center"
+          >
             {textos.email[lang]}
           </label>
           <input
-            className="shadow-md appearance-none border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
-                    leading-tight focus:outline-none focus:ring focus:border-blue-300"
-            type="text"
-            name="email"
             id="email"
+            name="email"
+            type="text"
             placeholder="email@example.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
+            className="shadow-md appearance-none border border-blue-500 rounded w-full py-2 px-3
+                       text-white bg-transparent leading-tight focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
 
-        {/* PASSWORD */}
+        {/* Contraseña */}
         <div className="mb-6">
-          <label className="text-white text-sm font-bold mb-4 block text-center" htmlFor="password">
+          <label
+            htmlFor="password"
+            className="text-white text-sm font-bold mb-4 block text-center"
+          >
             {textos.password[lang]}
           </label>
           <input
-            className="shadow-md appearance-none border border-blue-500 rounded w-full py-2 px-3 text-white bg-transparent 
-                    leading-tight focus:outline-none focus:ring focus:border-blue-300"
-            type="password"
-            name="password"
             id="password"
+            name="password"
+            type="password"
             placeholder="******************"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
+            className="shadow-md appearance-none border border-blue-500 rounded w-full py-2 px-3
+                       text-white bg-transparent leading-tight focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
 
-        {errorMessage && <p className="text-red-500 text-center mb-4">{errorMessage}</p>}
-        {/* BOTONES */}
+        {/* Error */}
+        {errorMessage && (
+          <p className="text-red-500 text-center mb-4">{errorMessage}</p>
+        )}
+
+        {/* Botones */}
         <div className="m-6 flex flex-col md:flex-row gap-6">
-          <button className="bg-white w-full md:w-1/2 text-[#7646e5] border border-[#7646e5] font-bold py-2 px-4 
-                          rounded-xl transition-transform duration-300 hover:scale-120"
-            type="submit">
+          <button
+            type="submit"
+            className="bg-white w-full md:w-1/2 text-[#7646e5] border border-[#7646e5]
+                       font-bold py-2 px-4 rounded-xl transition-transform duration-300 hover:scale-120"
+          >
             {textos.login[lang]}
           </button>
-          <button className="bg-white w-full md:w-1/2 text-[#7646e5] border border-[#7646e5] font-bold py-2 px-4 
-                          rounded-xl transition-transform duration-300 hover:scale-120"
-            onClick={() => navigate('/crearCuenta')}>
+          <button
+            type="button"
+            onClick={() => navigate('/crearCuenta')}
+            className="bg-white w-full md:w-1/2 text-[#7646e5] border border-[#7646e5]
+                       font-bold py-2 px-4 rounded-xl transition-transform duration-300 hover:scale-120"
+          >
             {textos.crear[lang]}
           </button>
         </div>
-
       </form>
-
     </div>
   );
 }
