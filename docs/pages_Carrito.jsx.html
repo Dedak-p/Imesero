@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Carrito.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Carrito.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useContext
+} from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Header from "../components/Header";
+import SeccionTitulo from "../components/SeccionTitulo";
+import ItemCarrito from "../components/ItemCarrito";
+import useApiCall from "../hooks/useApiCall";
+import apiClient from "../api/apiClient";
+import { AppContext } from "../context/AppContext";
+
+/**
+ * Estructura de un ítem dentro de la comanda de la mesa.
+ * @typedef {Object} ComandaItem
+ * @property {number} id                     - Identificador interno del ítem.
+ * @property {number} producto_id            - ID del producto asociado.
+ * @property {number} cantidad               - Cantidad de unidades.
+ * @property {number} precio_unitario        - Precio unitario del producto.
+ * @property {boolean} pagada                - Indica si ya está pagado.
+ * @property {number} subtotal               - Subtotal calculado (cantidad × precio_unitario).
+ */
+
+/**
+ * Estructura de la comanda de la mesa.
+ * @typedef {Object} MesaComanda
+ * @property {number} mesa                   - Número o ID de la mesa.
+ * @property {{ items: ComandaItem[] }} comanda - Datos de la comanda, con la lista de ítems.
+ */
+
+/**
+ * Página principal del carrito de la mesa.
+ *
+ * Muestra los ítems pendientes de pago, subtotal y permite confirmar la comanda.
+ *
+ * @component
+ * @returns {JSX.Element}
+ */
+const CarritoPage = () => {
+  const { lang } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { mesaId: mesaObtenida } = useParams();
+  const token = localStorage.getItem("token");
+
+  /**
+   * Textos localizados para la página de carrito.
+   * @type {{ carrito: Record&lt;string,string>, precios: Record&lt;string,string>, confirmacion: Record&lt;string,string> }}
+   */
+  const textos = {
+    carrito: {
+      es: "Este es tu carrito",
+      en: "This is your cart",
+      ca: "Aquest és el teu carretó",
+    },
+    precios: {
+      es: "Precio Total",
+      en: "Total Price",
+      ca: "Preu Total",
+    },
+    confirmacion: {
+      es: "Confirmar Comanda",
+      en: "Confirm Order",
+      ca: "Confirmar Comanda",
+    },
+  };
+
+  // Hook para obtener datos de la mesa y su comanda
+  const {
+    data: mesaDataArr,
+    loading: loadingMesa,
+    error: errorMesa,
+    refetch: refetchMesa,
+  } = useApiCall(
+    `http://${window.location.hostname}:8000/api/mesas/${mesaObtenida}`,
+    "get",
+    null,
+    [mesaObtenida]
+  );
+
+  /** @type {MesaComanda} */
+  const mesaData = mesaDataArr[0] || {};
+  const { comanda } = mesaData;
+
+  /**
+   * Filtra y agrupa los ítems no pagados por producto, calculando subtotales.
+   * @type {ComandaItem[]}
+   */
+  const itemList = useMemo(() => {
+    if (!comanda?.items) return [];
+    const map = {};
+    comanda.items
+      .filter((i) => !i.pagada)
+      .forEach((i) => {
+        const key = i.producto_id;
+        if (!map[key]) {
+          map[key] = { ...i, subtotal: i.cantidad * i.precio_unitario };
+        } else {
+          map[key].cantidad += i.cantidad;
+          map[key].subtotal += i.cantidad * i.precio_unitario;
+        }
+      });
+    return Object.values(map);
+  }, [comanda]);
+
+  /**
+   * Calcula el total sumando todos los subtotales.
+   * @type {number}
+   */
+  const total = useMemo(
+    () => itemList.reduce((sum, it) => sum + it.subtotal, 0),
+    [itemList]
+  );
+
+  /**
+   * Realiza una petición para añadir o quitar unidades de un ítem en la comanda.
+   *
+   * @param {number} productoId - ID del producto a actualizar.
+   * @param {number} delta      - Cambio en la cantidad (+1 o -1).
+   * @returns {Promise&lt;void>}
+   */
+  const updateItem = useCallback(
+    async (productoId, delta) => {
+      try {
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        await apiClient.post(
+          `http://${window.location.hostname}:8000/api/mesas/${mesaObtenida}/items`,
+          { producto_id: productoId, cantidad: delta },
+          { headers }
+        );
+        await refetchMesa();
+      } catch (e) {
+        console.error("Error al actualizar ítem:", e.response?.data || e.message);
+      }
+    },
+    [mesaObtenida, token, refetchMesa]
+  );
+
+  const añadirCarrito = (id) => updateItem(id, 1);
+  const eliminarCarrito = (id) => updateItem(id, -1);
+
+  // Estado para controlar la confirmación de la comanda
+  const [confirming, setConfirming] = useState(false);
+
+  /**
+   * Confirma la comanda marcándola y redirige a la página de pago.
+   *
+   * @returns {Promise&lt;void>}
+   */
+  const manejarConfirmacion = useCallback(async () => {
+    if (itemList.length === 0) return;
+    try {
+      setConfirming(true);
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      await apiClient.patch(
+        `http://${window.location.hostname}:8000/api/mesas/${mesaObtenida}/confirm`,
+        {},
+        { headers }
+      );
+      navigate("/pagar");
+    } catch (e) {
+      console.error("Error al confirmar comanda:", e);
+    } finally {
+      setConfirming(false);
+    }
+  }, [itemList.length, mesaObtenida, navigate, token]);
+
+  // Manejo de error al cargar la mesa
+  if (errorMesa) {
+    return (
+      &lt;div className="min-h-screen flex items-center justify-center text-red-400 bg-[#012340]">
+        &lt;p>{errorMesa.message || errorMesa}&lt;/p>
+      &lt;/div>
+    );
+  }
+
+  return (
+    &lt;>
+      &lt;Header />
+      &lt;div className="min-h-screen p-6 bg-[#012340] text-white">
+        &lt;SeccionTitulo titulo={textos.carrito[lang]} />
+
+        {loadingMesa ? (
+          &lt;div className="h-50 flex items-center justify-center text-white bg-[#012340]">
+            &lt;p>Cargando datos de la mesa…&lt;/p>
+          &lt;/div>
+        ) : !comanda ? (
+          &lt;div className="h-50 flex items-center justify-center text-white bg-[#012340]">
+            &lt;p>No hay comanda en esta mesa.&lt;/p>
+          &lt;/div>
+        ) : (
+          &lt;>
+            {/* Lista de ítems */}
+            &lt;div className="space-y-3">
+              {itemList.length > 0 ? (
+                itemList.map((item) => (
+                  &lt;ItemCarrito
+                    key={item.id}
+                    productoId={item.producto_id}
+                    cantidad={item.cantidad}
+                    onAdd={añadirCarrito}
+                    onRemove={eliminarCarrito}
+                  />
+                ))
+              ) : (
+                &lt;p>No hay productos pendientes de pago.&lt;/p>
+              )}
+            &lt;/div>
+
+            {/* Subtotal y botón Confirmar */}
+            &lt;div className="mt-6 text-center">
+              &lt;SeccionTitulo
+                titulo={`${textos.precios[lang]}:  ${total.toFixed(2)} €`}
+              />
+              &lt;button
+                onClick={manejarConfirmacion}
+                disabled={itemList.length === 0 || confirming}
+                className={`mt-4 px-8 py-3 font-bold rounded-xl transition ${
+                  itemList.length === 0 || confirming
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-white text-[#7646e5] hover:scale-105"
+                }`}
+              >
+                {confirming
+                  ? "Confirmando…"
+                  : textos.confirmacion[lang]}
+              &lt;/button>
+            &lt;/div>
+          &lt;/>
+        )}
+      &lt;/div>
+    &lt;/>
+  );
+};
+
+export default CarritoPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Externals</h3><ul><li><a href="external-AxiosInstance.html">AxiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#AppContext">AppContext</a></li><li><a href="global.html#CarritoPage">CarritoPage</a></li><li><a href="global.html#CrearCuenta">CrearCuenta</a></li><li><a href="global.html#CrearProducto">CrearProducto</a></li><li><a href="global.html#EditarProducto">EditarProducto</a></li><li><a href="global.html#EliminarProductos">EliminarProductos</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Item">Item</a></li><li><a href="global.html#ItemCarrito">ItemCarrito</a></li><li><a href="global.html#ItemConfirmado">ItemConfirmado</a></li><li><a href="global.html#ItemModificar">ItemModificar</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MenuPage">MenuPage</a></li><li><a href="global.html#ModificarProducto">ModificarProducto</a></li><li><a href="global.html#NotFoundPage">NotFoundPage</a></li><li><a href="global.html#PagarPage">PagarPage</a></li><li><a href="global.html#SeccionTitulo">SeccionTitulo</a></li><li><a href="global.html#SeguimientoPage">SeguimientoPage</a></li><li><a href="global.html#UsuarioPage">UsuarioPage</a></li><li><a href="global.html#apiClient">apiClient</a></li><li><a href="global.html#useApiCall">useApiCall</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat May 10 2025 13:28:23 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
