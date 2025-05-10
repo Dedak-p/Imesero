@@ -11,17 +11,17 @@ import UsuarioPage from "./pages/Usuario.jsx";
 import PagarPage from "./pages/Pagar.jsx";
 import CrearProducto  from './pages/CrearProducto.jsx'
 import EliminarProductos from './pages/EliminarProducto.jsx'
-import ModificarProducto from './pages/ModifcarProducto.jsx'
+import ModificarProducto from './pages/ModificarProducto.jsx'
 import EditarProducto from './pages/EditarProducto.jsx'
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 function App() {
   return <>
 
-    <Routes> {/*Definimos las rutas de la aplicación*/}
-      <Route path="/" element={<HomePage />} />  {/*Devolvemos la pagina principal*/}
-      <Route path="/login" element={<Login />} /> {/*Devolvemos Login*/}
-      <Route path="/crearCuenta" element={<CrearCuenta />} /> {/*Devolvemos crear cuenta*/}
+    <Routes> 
+      <Route path="/" element={<HomePage />} />  
+      <Route path="/login" element={<Login />} /> 
+      <Route path="/crearCuenta" element={<CrearCuenta />} />
       <Route path="/item" element={<ItemSelected />} />
       <Route path="/menu/:mesaId" element={<Menu />} />
       <Route path="/carrito/:mesaId" element={<CarritoPage />} />
