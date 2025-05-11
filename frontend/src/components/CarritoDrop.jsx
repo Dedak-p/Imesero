@@ -73,7 +73,8 @@ export default function CarritoDrop() {
    * Cuando cambia `comanda`, extrae los `items` de la respuesta.
    */
   useEffect(() => {
-    if (!loading && Array.isArray(comanda) && comanda.length > 0) {
+    if (!loading && Array.isArray(comanda) && comanda.length > 0  &&
+    comanda[0]?.comanda?.items) {
       /** @type {MesaApiResponse[]} */
       const apiResp = comanda;
       setItems(apiResp[0].comanda.items);
