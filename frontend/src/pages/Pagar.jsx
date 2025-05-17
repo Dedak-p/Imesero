@@ -180,7 +180,7 @@ const PagarPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen p-4 mt-24 text-white bg-[#012340] text-center">
+      <div className="min-h-[85dvh] p-4  text-white bg-[#012340] text-center">
         <SeccionTitulo titulo={textos.resumen[lang]} />
         <div className="mt-6">
           {itemsConfirmados.length > 0 ? (

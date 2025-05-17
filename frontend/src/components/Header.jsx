@@ -73,7 +73,7 @@ const Header = () => {
   }, [loading, navigate, mesaObtenida, path]);
 
   return (
-    <header className="sticky top-0 left-0 grid grid-cols-2 grid-rows-2 p-4 bg-blue-950 shadow-md w-full">
+    <header className="sticky top-0 left-0 grid grid-cols-2 grid-rows-2 p-4 bg-blue-950 shadow-md w-full min-h-[15dvh]">
 
       {/* Botón de retroceso */}
       <button className="p-2 rounded-full" onClick={() => navigate(-1)}>

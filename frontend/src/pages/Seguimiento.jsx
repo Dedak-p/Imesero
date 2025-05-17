@@ -97,7 +97,7 @@ const SeguimientoPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen p-4 mt-25 text-center text-white bg-[#012340] flex flex-col items-center">
+      <div className="min-h-[85dvh] p-4  text-center text-white bg-[#012340] flex flex-col items-center">
         <SeccionTitulo titulo={translations[lang]?.titulo} />
 
         <div className="flex w-full max-w-screen-md mx-auto border border-gray-600 rounded-lg overflow-hidden shadow-md bg-[#01344C] mt-5 mb-5">

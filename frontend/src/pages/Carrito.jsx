@@ -180,7 +180,7 @@ const CarritoPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen p-6 bg-[#012340] text-white">
+      <div className="min-h-[85dvh]  p-6 bg-[#012340] text-white">
         <SeccionTitulo titulo={textos.carrito[lang]} />
 
         {loadingMesa ? (
